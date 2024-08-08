@@ -20,18 +20,16 @@ const findByKey = async (
   return rows.length ? rows[0] : null;
 };
 
-export const findByPrimaryKey = async (
+export const checkPrimaryKey = async (
   query: Query,
   tableName: string,
   instanceName: string,
   primaryKey: Record<string, any>,
-  forUpdate = false,
 ) => {
-  const row = await findByKey(query, tableName, primaryKey, forUpdate);
-  if (!row) {
-    throw new NotFoundError(`${instanceName} not found`);
+  const row = await findByKey(query, tableName, primaryKey);
+  if (row) {
+    throw new ConflictError(`${instanceName} already exists`);
   }
-  return row;
 };
 
 export const checkUniqueKey = async (
@@ -49,6 +47,20 @@ export const checkUniqueKey = async (
         'already exists',
     );
   }
+};
+
+export const findByPrimaryKey = async (
+  query: Query,
+  tableName: string,
+  instanceName: string,
+  primaryKey: Record<string, any>,
+  forUpdate = false,
+) => {
+  const row = await findByKey(query, tableName, primaryKey, forUpdate);
+  if (!row) {
+    throw new NotFoundError(`${instanceName} not found`);
+  }
+  return row;
 };
 
 export const findByUniqueKey = async (

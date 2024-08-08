@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findByUniqueKey = exports.checkUniqueKey = exports.findByPrimaryKey = void 0;
+exports.findByUniqueKey = exports.findByPrimaryKey = exports.checkUniqueKey = exports.checkPrimaryKey = void 0;
 const node_errors_1 = require("node-errors");
 const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, key_1, ...args_1], void 0, function* (query, tableName, key, forUpdate = false) {
     const rows = (yield query(`SELECT * FROM ${tableName} ` +
@@ -19,14 +19,13 @@ const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, 
         `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`, Object.values(key))).rows;
     return rows.length ? rows[0] : null;
 });
-const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1], void 0, function* (query, tableName, instanceName, primaryKey, forUpdate = false) {
-    const row = yield findByKey(query, tableName, primaryKey, forUpdate);
-    if (!row) {
-        throw new node_errors_1.NotFoundError(`${instanceName} not found`);
+const checkPrimaryKey = (query, tableName, instanceName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
+    const row = yield findByKey(query, tableName, primaryKey);
+    if (row) {
+        throw new node_errors_1.ConflictError(`${instanceName} already exists`);
     }
-    return row;
 });
-exports.findByPrimaryKey = findByPrimaryKey;
+exports.checkPrimaryKey = checkPrimaryKey;
 const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
     const row = yield findByKey(query, tableName, uniqueKey);
     if (row) {
@@ -37,6 +36,14 @@ const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(
     }
 });
 exports.checkUniqueKey = checkUniqueKey;
+const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1], void 0, function* (query, tableName, instanceName, primaryKey, forUpdate = false) {
+    const row = yield findByKey(query, tableName, primaryKey, forUpdate);
+    if (!row) {
+        throw new node_errors_1.NotFoundError(`${instanceName} not found`);
+    }
+    return row;
+});
+exports.findByPrimaryKey = findByPrimaryKey;
 const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1], void 0, function* (query, tableName, instanceName, uniqueKey, forUpdate = false) {
     const row = yield findByKey(query, tableName, uniqueKey, forUpdate);
     if (!row) {
