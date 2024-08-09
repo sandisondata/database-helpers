@@ -85,19 +85,16 @@ export const findByUniqueKey = async (
 export const createRow = async (
   query: Query,
   tableName: string,
-  instance: Record<string, any>,
+  data: Record<string, any>,
 ) => {
-  const columns = Object.fromEntries(
-    Object.entries(instance).filter(([k]) => !['id', 'uuid'].includes(k)),
-  );
   const row = (
     await query(
-      `INSERT INTO ${tableName} (${Object.keys(columns).join(', ')}) ` +
-        `VALUES (${Object.keys(columns)
+      `INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
+        `VALUES (${Object.keys(data)
           .map((x, i) => `$${i + 1}`)
           .join(', ')} ` +
         'RETURNING *',
-      Object.values(columns),
+      Object.values(data),
     )
   ).rows[0] as object;
   return row;
@@ -106,26 +103,20 @@ export const createRow = async (
 export const updateRow = async (
   query: Query,
   tableName: string,
-  instance: Record<string, any>,
-  primaryKeyNames: string[],
+  primaryKey: Record<string, any>,
+  data: Record<string, any>,
 ) => {
-  const columns = Object.fromEntries(
-    Object.entries(instance).filter(([k]) => !primaryKeyNames.includes(k)),
-  );
-  const primaryKey = Object.fromEntries(
-    Object.entries(instance).filter(([k]) => primaryKeyNames.includes(k)),
-  );
   const row = (
     await query(
       `UPDATE ${tableName} ` +
-        `SET ${Object.keys(columns)
+        `SET ${Object.keys(data)
           .map((x, i) => `${x} = $${i + 1}`)
           .join(' AND ')} ` +
         `WHERE ${Object.keys(primaryKey)
           .map((x, i) => `${x} = $${i + 1}`)
           .join(' AND ')} ` +
         'RETURNING *',
-      [].concat(...Object.values(columns), ...Object.values(primaryKey)),
+      [].concat(...Object.values(data), ...Object.values(primaryKey)),
     )
   ).rows[0] as object;
   return row;

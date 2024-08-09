@@ -55,27 +55,24 @@ const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...a
     return row;
 });
 exports.findByUniqueKey = findByUniqueKey;
-const createRow = (query, tableName, instance) => __awaiter(void 0, void 0, void 0, function* () {
-    const columns = Object.fromEntries(Object.entries(instance).filter(([k]) => !['id', 'uuid'].includes(k)));
-    const row = (yield query(`INSERT INTO ${tableName} (${Object.keys(columns).join(', ')}) ` +
-        `VALUES (${Object.keys(columns)
+const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, function* () {
+    const row = (yield query(`INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
+        `VALUES (${Object.keys(data)
             .map((x, i) => `$${i + 1}`)
             .join(', ')} ` +
-        'RETURNING *', Object.values(columns))).rows[0];
+        'RETURNING *', Object.values(data))).rows[0];
     return row;
 });
 exports.createRow = createRow;
-const updateRow = (query, tableName, instance, primaryKeyNames) => __awaiter(void 0, void 0, void 0, function* () {
-    const columns = Object.fromEntries(Object.entries(instance).filter(([k]) => !primaryKeyNames.includes(k)));
-    const primaryKey = Object.fromEntries(Object.entries(instance).filter(([k]) => primaryKeyNames.includes(k)));
+const updateRow = (query, tableName, primaryKey, data) => __awaiter(void 0, void 0, void 0, function* () {
     const row = (yield query(`UPDATE ${tableName} ` +
-        `SET ${Object.keys(columns)
+        `SET ${Object.keys(data)
             .map((x, i) => `${x} = $${i + 1}`)
             .join(' AND ')} ` +
         `WHERE ${Object.keys(primaryKey)
             .map((x, i) => `${x} = $${i + 1}`)
             .join(' AND ')} ` +
-        'RETURNING *', [].concat(...Object.values(columns), ...Object.values(primaryKey)))).rows[0];
+        'RETURNING *', [].concat(...Object.values(data), ...Object.values(primaryKey)))).rows[0];
     return row;
 });
 exports.updateRow = updateRow;
