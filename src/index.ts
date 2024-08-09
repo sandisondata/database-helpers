@@ -81,3 +81,66 @@ export const findByUniqueKey = async (
   }
   return row;
 };
+
+export const createRow = async (
+  query: Query,
+  tableName: string,
+  instance: Record<string, any>,
+) => {
+  const columns = Object.fromEntries(
+    Object.entries(instance).filter(([k]) => !['id', 'uuid'].includes(k)),
+  );
+  const row = (
+    await query(
+      `INSERT INTO ${tableName} (${Object.keys(columns).join(', ')}) ` +
+        `VALUES (${Object.keys(columns)
+          .map((x, i) => `$${i + 1}`)
+          .join(', ')} ` +
+        'RETURNING *',
+      Object.values(columns),
+    )
+  ).rows[0] as object;
+  return row;
+};
+
+export const updateRow = async (
+  query: Query,
+  tableName: string,
+  instance: Record<string, any>,
+  primaryKeyNames: string[],
+) => {
+  const columns = Object.fromEntries(
+    Object.entries(instance).filter(([k]) => !primaryKeyNames.includes(k)),
+  );
+  const primaryKey = Object.fromEntries(
+    Object.entries(instance).filter(([k]) => primaryKeyNames.includes(k)),
+  );
+  const row = (
+    await query(
+      `UPDATE ${tableName} ` +
+        `SET ${Object.keys(columns)
+          .map((x, i) => `${x} = $${i + 1}`)
+          .join(' AND ')} ` +
+        `WHERE ${Object.keys(primaryKey)
+          .map((x, i) => `${x} = $${i + 1}`)
+          .join(' AND ')} ` +
+        'RETURNING *',
+      [].concat(...Object.values(columns), ...Object.values(primaryKey)),
+    )
+  ).rows[0] as object;
+  return row;
+};
+
+export const deleteRow = async (
+  query: Query,
+  tableName: string,
+  primaryKey: Record<string, any>,
+) => {
+  await query(
+    `DELETE FROM ${tableName} ` +
+      `WHERE ${Object.keys(primaryKey)
+        .map((x, i) => `${x} = $${i + 1}`)
+        .join(' AND ')}`,
+    Object.values(primaryKey),
+  );
+};

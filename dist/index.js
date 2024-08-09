@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.findByUniqueKey = exports.findByPrimaryKey = exports.checkUniqueKey = exports.checkPrimaryKey = void 0;
+exports.deleteRow = exports.updateRow = exports.createRow = exports.findByUniqueKey = exports.findByPrimaryKey = exports.checkUniqueKey = exports.checkPrimaryKey = void 0;
 const node_errors_1 = require("node-errors");
 const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, key_1, ...args_1], void 0, function* (query, tableName, key, forUpdate = false) {
     const rows = (yield query(`SELECT * FROM ${tableName} ` +
@@ -55,3 +55,34 @@ const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...a
     return row;
 });
 exports.findByUniqueKey = findByUniqueKey;
+const createRow = (query, tableName, instance) => __awaiter(void 0, void 0, void 0, function* () {
+    const columns = Object.fromEntries(Object.entries(instance).filter(([k]) => !['id', 'uuid'].includes(k)));
+    const row = (yield query(`INSERT INTO ${tableName} (${Object.keys(columns).join(', ')}) ` +
+        `VALUES (${Object.keys(columns)
+            .map((x, i) => `$${i + 1}`)
+            .join(', ')} ` +
+        'RETURNING *', Object.values(columns))).rows[0];
+    return row;
+});
+exports.createRow = createRow;
+const updateRow = (query, tableName, instance, primaryKeyNames) => __awaiter(void 0, void 0, void 0, function* () {
+    const columns = Object.fromEntries(Object.entries(instance).filter(([k]) => !primaryKeyNames.includes(k)));
+    const primaryKey = Object.fromEntries(Object.entries(instance).filter(([k]) => primaryKeyNames.includes(k)));
+    const row = (yield query(`UPDATE ${tableName} ` +
+        `SET ${Object.keys(columns)
+            .map((x, i) => `${x} = $${i + 1}`)
+            .join(' AND ')} ` +
+        `WHERE ${Object.keys(primaryKey)
+            .map((x, i) => `${x} = $${i + 1}`)
+            .join(' AND ')} ` +
+        'RETURNING *', [].concat(...Object.values(columns), ...Object.values(primaryKey)))).rows[0];
+    return row;
+});
+exports.updateRow = updateRow;
+const deleteRow = (query, tableName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
+    yield query(`DELETE FROM ${tableName} ` +
+        `WHERE ${Object.keys(primaryKey)
+            .map((x, i) => `${x} = $${i + 1}`)
+            .join(' AND ')}`, Object.values(primaryKey));
+});
+exports.deleteRow = deleteRow;
