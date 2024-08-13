@@ -113,7 +113,7 @@ export const updateRow = async (
           .map((x, i) => `${x} = $${i + 1}`)
           .join(' AND ')} ` +
         `WHERE ${Object.keys(primaryKey)
-          .map((x, i) => `${x} = $${i + 1}`)
+          .map((x, i) => `${x} = $${Object.keys(data).length + i + 1}`)
           .join(' AND ')} ` +
         'RETURNING *',
       [].concat(...Object.values(data), ...Object.values(primaryKey)),
