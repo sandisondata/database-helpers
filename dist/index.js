@@ -9,14 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteRow = exports.updateRow = exports.createRow = exports.findByKey = exports.checkKey = exports.KeyType = void 0;
+exports.deleteRow = exports.updateRow = exports.createRow = exports.findByUniqueKey = exports.findByPrimaryKey = exports.checkUniqueKey = exports.checkPrimaryKey = void 0;
 const node_errors_1 = require("node-errors");
-var KeyType;
-(function (KeyType) {
-    KeyType[KeyType["Primary"] = 0] = "Primary";
-    KeyType[KeyType["Unique"] = 1] = "Unique";
-})(KeyType || (exports.KeyType = KeyType = {}));
-const _findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, key_1, ...args_1], void 0, function* (query, tableName, key, forUpdate = false) {
+const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, key_1, ...args_1], void 0, function* (query, tableName, key, forUpdate = false) {
     const rows = (yield query(`SELECT * FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} = $${i + 1}`)
@@ -24,31 +19,42 @@ const _findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0,
         `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`, Object.values(key))).rows;
     return rows.length ? rows[0] : null;
 });
-const checkKey = (query_1, tableName_1, instanceName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, key_1, ...args_1], void 0, function* (query, tableName, instanceName, key, keyType = KeyType.Primary) {
-    const row = yield _findByKey(query, tableName, key);
+const checkPrimaryKey = (query, tableName, instanceName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
+    const row = yield findByKey(query, tableName, primaryKey);
+    if (row) {
+        throw new node_errors_1.ConflictError(`${instanceName} already exists`);
+    }
+});
+exports.checkPrimaryKey = checkPrimaryKey;
+const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
+    const row = yield findByKey(query, tableName, uniqueKey);
     if (row) {
         throw new node_errors_1.ConflictError(`${instanceName} ` +
-            (keyType == KeyType.Primary
-                ? ''
-                : `unique key (${Object.keys(key).join(', ')}) ` +
-                    `value (${Object.values(key).join(', ')}) `) +
+            `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
+            `value (${Object.values(uniqueKey).join(', ')}) ` +
             'already exists');
     }
 });
-exports.checkKey = checkKey;
-const findByKey = (query_1, tableName_1, instanceName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, key_1, ...args_1], void 0, function* (query, tableName, instanceName, key, keyType = KeyType.Primary, forUpdate = false) {
-    const row = yield _findByKey(query, tableName, key, forUpdate);
+exports.checkUniqueKey = checkUniqueKey;
+const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1], void 0, function* (query, tableName, instanceName, primaryKey, forUpdate = false) {
+    const row = yield findByKey(query, tableName, primaryKey, forUpdate);
+    if (!row) {
+        throw new node_errors_1.NotFoundError(`${instanceName} not found`);
+    }
+    return row;
+});
+exports.findByPrimaryKey = findByPrimaryKey;
+const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1], void 0, function* (query, tableName, instanceName, uniqueKey, forUpdate = false) {
+    const row = yield findByKey(query, tableName, uniqueKey, forUpdate);
     if (!row) {
         throw new node_errors_1.NotFoundError(`${instanceName} ` +
-            (keyType == KeyType.Primary
-                ? ''
-                : `unique key (${Object.keys(key).join(', ')}) ` +
-                    `value (${Object.values(key).join(', ')}) `) +
+            `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
+            `value (${Object.values(uniqueKey).join(', ')}) ` +
             'not found');
     }
     return row;
 });
-exports.findByKey = findByKey;
+exports.findByUniqueKey = findByUniqueKey;
 const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, function* () {
     const row = (yield query(`INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
         `VALUES (${Object.keys(data)
