@@ -1,7 +1,12 @@
 import { Query } from 'database';
 import { NotFoundError, ConflictError } from 'node-errors';
 
-const findByKey = async (
+export enum KeyType {
+  Primary,
+  Unique,
+}
+
+const _findByKey = async (
   query: Query,
   tableName: string,
   key: Record<string, any>,
@@ -20,62 +25,42 @@ const findByKey = async (
   return rows.length ? rows[0] : null;
 };
 
-export const checkPrimaryKey = async (
+export const checkKey = async (
   query: Query,
   tableName: string,
   instanceName: string,
-  primaryKey: Record<string, any>,
+  key: Record<string, any>,
+  keyType: KeyType = KeyType.Primary,
 ) => {
-  const row = await findByKey(query, tableName, primaryKey);
-  if (row) {
-    throw new ConflictError(`${instanceName} already exists`);
-  }
-};
-
-export const checkUniqueKey = async (
-  query: Query,
-  tableName: string,
-  instanceName: string,
-  uniqueKey: Record<string, any>,
-) => {
-  const row = await findByKey(query, tableName, uniqueKey);
+  const row = await _findByKey(query, tableName, key);
   if (row) {
     throw new ConflictError(
       `${instanceName} ` +
-        `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
-        `value (${Object.values(uniqueKey).join(', ')}) ` +
+        (keyType == KeyType.Primary
+          ? ''
+          : `unique key (${Object.keys(key).join(', ')}) ` +
+            `value (${Object.values(key).join(', ')}) `) +
         'already exists',
     );
   }
 };
 
-export const findByPrimaryKey = async (
+export const findByKey = async (
   query: Query,
   tableName: string,
   instanceName: string,
-  primaryKey: Record<string, any>,
+  key: Record<string, any>,
+  keyType: KeyType = KeyType.Primary,
   forUpdate = false,
 ) => {
-  const row = await findByKey(query, tableName, primaryKey, forUpdate);
-  if (!row) {
-    throw new NotFoundError(`${instanceName} not found`);
-  }
-  return row;
-};
-
-export const findByUniqueKey = async (
-  query: Query,
-  tableName: string,
-  instanceName: string,
-  uniqueKey: Record<string, any>,
-  forUpdate = false,
-) => {
-  const row = await findByKey(query, tableName, uniqueKey, forUpdate);
+  const row = await _findByKey(query, tableName, key, forUpdate);
   if (!row) {
     throw new NotFoundError(
       `${instanceName} ` +
-        `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
-        `value (${Object.values(uniqueKey).join(', ')}) ` +
+        (keyType == KeyType.Primary
+          ? ''
+          : `unique key (${Object.keys(key).join(', ')}) ` +
+            `value (${Object.values(key).join(', ')}) `) +
         'not found',
     );
   }
