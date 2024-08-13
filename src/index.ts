@@ -92,7 +92,7 @@ export const createRow = async (
       `INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
         `VALUES (${Object.keys(data)
           .map((x, i) => `$${i + 1}`)
-          .join(', ')} ` +
+          .join(', ')}) ` +
         'RETURNING *',
       Object.values(data),
     )

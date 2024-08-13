@@ -59,7 +59,7 @@ const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, 
     const row = (yield query(`INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
         `VALUES (${Object.keys(data)
             .map((x, i) => `$${i + 1}`)
-            .join(', ')} ` +
+            .join(', ')}) ` +
         'RETURNING *', Object.values(data))).rows[0];
     return row;
 });
