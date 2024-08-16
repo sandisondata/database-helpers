@@ -12,10 +12,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteRow = exports.updateRow = exports.createRow = exports.findByUniqueKey = exports.findByPrimaryKey = exports.checkUniqueKey = exports.checkPrimaryKey = void 0;
 const node_debug_1 = require("node-debug");
 const node_errors_1 = require("node-errors");
-let debug;
 const debugSource = 'database-helpers';
 const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, key_1, ...args_1], void 0, function* (query, tableName, key, forUpdate = false) {
-    debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
+    const debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `key=${JSON.stringify(key)};` +
         `forUpdate=${forUpdate}`);
@@ -33,7 +32,7 @@ const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, 
     return row;
 });
 const checkPrimaryKey = (query, tableName, instanceName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
-    debug = new node_debug_1.Debug(`${debugSource}.checkPrimaryKey`);
+    const debug = new node_debug_1.Debug(`${debugSource}.checkPrimaryKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `instanceName=${instanceName};` +
         `primaryKey=${JSON.stringify(primaryKey)}`);
@@ -47,7 +46,7 @@ const checkPrimaryKey = (query, tableName, instanceName, primaryKey) => __awaite
 });
 exports.checkPrimaryKey = checkPrimaryKey;
 const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
-    debug = new node_debug_1.Debug(`${debugSource}.checkUniqueKey`);
+    const debug = new node_debug_1.Debug(`${debugSource}.checkUniqueKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `instanceName=${instanceName};` +
         `uniqueKey=${JSON.stringify(uniqueKey)};`);
@@ -64,7 +63,7 @@ const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(
 });
 exports.checkUniqueKey = checkUniqueKey;
 const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1], void 0, function* (query, tableName, instanceName, primaryKey, forUpdate = false) {
-    debug = new node_debug_1.Debug(`${debugSource}.findByPrimaryKey`);
+    const debug = new node_debug_1.Debug(`${debugSource}.findByPrimaryKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `instanceName=${instanceName};` +
         `primaryKey=${JSON.stringify(primaryKey)};` +
@@ -80,7 +79,7 @@ const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ..
 });
 exports.findByPrimaryKey = findByPrimaryKey;
 const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1], void 0, function* (query, tableName, instanceName, uniqueKey, forUpdate = false) {
-    debug = new node_debug_1.Debug(`${debugSource}.findByUniqueKey`);
+    const debug = new node_debug_1.Debug(`${debugSource}.findByUniqueKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `instanceName=${instanceName};` +
         `uniqueKey=${JSON.stringify(uniqueKey)};` +
@@ -99,7 +98,7 @@ const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...a
 });
 exports.findByUniqueKey = findByUniqueKey;
 const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, function* () {
-    debug = new node_debug_1.Debug(`${debugSource}.createRow`);
+    const debug = new node_debug_1.Debug(`${debugSource}.createRow`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};data=${JSON.stringify(data)}`);
     const text = `INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
         `VALUES (${Object.keys(data)
@@ -116,7 +115,7 @@ const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, 
 });
 exports.createRow = createRow;
 const updateRow = (query, tableName, primaryKey, data) => __awaiter(void 0, void 0, void 0, function* () {
-    debug = new node_debug_1.Debug(`${debugSource}.updateRow`);
+    const debug = new node_debug_1.Debug(`${debugSource}.updateRow`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `primaryKey=${JSON.stringify(primaryKey)};` +
         `data=${JSON.stringify(data)}`);
@@ -138,7 +137,7 @@ const updateRow = (query, tableName, primaryKey, data) => __awaiter(void 0, void
 });
 exports.updateRow = updateRow;
 const deleteRow = (query, tableName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
-    debug = new node_debug_1.Debug(`${debugSource}.deleteRow`);
+    const debug = new node_debug_1.Debug(`${debugSource}.deleteRow`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`);
     const text = `DELETE FROM ${tableName} ` +
         `WHERE ${Object.keys(primaryKey)
