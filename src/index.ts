@@ -27,10 +27,8 @@ const findByKey = async (
   debug.write(MessageType.Value, `text=${text}`);
   const values = Object.values(key);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
-  debug.write(MessageType.Step, 'Querying rows...');
-  const rows: object[] = (await query(text, values)).rows;
-  debug.write(MessageType.Value, `rows=${JSON.stringify(rows)}`);
-  const row = rows.length ? rows[0] : null;
+  debug.write(MessageType.Step, 'Finding rows...');
+  const row: object | null = (await query(text, values)).rows[0] || null;
   debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
   return row;
 };
@@ -54,6 +52,7 @@ export const checkPrimaryKey = async (
   if (row) {
     throw new ConflictError(`${instanceName} already exists`);
   }
+  debug.write(MessageType.Exit);
 };
 
 export const checkUniqueKey = async (
@@ -80,6 +79,7 @@ export const checkUniqueKey = async (
         'already exists',
     );
   }
+  debug.write(MessageType.Exit);
 };
 
 export const findByPrimaryKey = async (
@@ -103,6 +103,7 @@ export const findByPrimaryKey = async (
   if (!row) {
     throw new NotFoundError(`${instanceName} not found`);
   }
+  debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
   return row;
 };
 
@@ -113,7 +114,7 @@ export const findByUniqueKey = async (
   uniqueKey: Record<string, any>,
   forUpdate = false,
 ) => {
-  debug = new Debug(`${debugSource}.findByPrimaryKey`);
+  debug = new Debug(`${debugSource}.findByUniqueKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};` +
@@ -132,6 +133,7 @@ export const findByUniqueKey = async (
         'not found',
     );
   }
+  debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
   return row;
 };
 

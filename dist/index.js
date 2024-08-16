@@ -27,10 +27,8 @@ const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, 
     debug.write(node_debug_1.MessageType.Value, `text=${text}`);
     const values = Object.values(key);
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
-    debug.write(node_debug_1.MessageType.Step, 'Querying rows...');
-    const rows = (yield query(text, values)).rows;
-    debug.write(node_debug_1.MessageType.Value, `rows=${JSON.stringify(rows)}`);
-    const row = rows.length ? rows[0] : null;
+    debug.write(node_debug_1.MessageType.Step, 'Finding rows...');
+    const row = (yield query(text, values)).rows[0] || null;
     debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
     return row;
 });
@@ -45,6 +43,7 @@ const checkPrimaryKey = (query, tableName, instanceName, primaryKey) => __awaite
     if (row) {
         throw new node_errors_1.ConflictError(`${instanceName} already exists`);
     }
+    debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkPrimaryKey = checkPrimaryKey;
 const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
@@ -61,6 +60,7 @@ const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(
             `value (${Object.values(uniqueKey).join(', ')}) ` +
             'already exists');
     }
+    debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkUniqueKey = checkUniqueKey;
 const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1], void 0, function* (query, tableName, instanceName, primaryKey, forUpdate = false) {
@@ -75,11 +75,12 @@ const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ..
     if (!row) {
         throw new node_errors_1.NotFoundError(`${instanceName} not found`);
     }
+    debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
     return row;
 });
 exports.findByPrimaryKey = findByPrimaryKey;
 const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1], void 0, function* (query, tableName, instanceName, uniqueKey, forUpdate = false) {
-    debug = new node_debug_1.Debug(`${debugSource}.findByPrimaryKey`);
+    debug = new node_debug_1.Debug(`${debugSource}.findByUniqueKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `instanceName=${instanceName};` +
         `uniqueKey=${JSON.stringify(uniqueKey)};` +
@@ -93,6 +94,7 @@ const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...a
             `value (${Object.values(uniqueKey).join(', ')}) ` +
             'not found');
     }
+    debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
     return row;
 });
 exports.findByUniqueKey = findByUniqueKey;
