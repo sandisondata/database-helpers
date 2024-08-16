@@ -20,11 +20,14 @@ const findByKey = async (
   const text =
     `SELECT * FROM ${tableName} ` +
     `WHERE ${Object.keys(key)
-      .map((x, i) => `${x} ` + (key[x] == null ? 'IS' : '=') + ` $${i + 1}`)
+      .map(
+        (x, i) =>
+          `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`,
+      )
       .join(' AND ')} ` +
     `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
   debug.write(MessageType.Value, `text=(${text})`);
-  const values = Object.values(key);
+  const values = Object.values(key).map((x) => (x == null ? 1 : x));
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Finding row...');
   const row: object | null = (await query(text, values)).rows[0] || null;

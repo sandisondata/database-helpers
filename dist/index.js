@@ -20,11 +20,11 @@ const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, 
         `forUpdate=${forUpdate}`);
     const text = `SELECT * FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
-            .map((x, i) => `${x} ` + (key[x] == null ? 'IS' : '=') + ` $${i + 1}`)
+            .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`)
             .join(' AND ')} ` +
         `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
-    const values = Object.values(key);
+    const values = Object.values(key).map((x) => (x == null ? 1 : x));
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row...');
     const row = (yield query(text, values)).rows[0] || null;
