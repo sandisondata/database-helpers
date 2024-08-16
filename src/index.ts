@@ -104,7 +104,6 @@ export const findByPrimaryKey = async (
   );
   debug.write(MessageType.Step, 'Finding row by key...');
   const row = await findByKey(query, tableName, primaryKey, forUpdate);
-  debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
   if (!row) {
     throw new NotFoundError(`${instanceName} not found`);
   }
@@ -129,7 +128,6 @@ export const findByUniqueKey = async (
   );
   debug.write(MessageType.Step, 'Finding row by key...');
   const row = await findByKey(query, tableName, uniqueKey, forUpdate);
-  debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
   if (!row) {
     throw new NotFoundError(
       `${instanceName} ` +

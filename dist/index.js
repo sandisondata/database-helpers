@@ -73,7 +73,6 @@ const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ..
         `forUpdate=${forUpdate}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
     const row = yield findByKey(query, tableName, primaryKey, forUpdate);
-    debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     if (!row) {
         throw new node_errors_1.NotFoundError(`${instanceName} not found`);
     }
@@ -89,7 +88,6 @@ const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...a
         `forUpdate=${forUpdate}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
     const row = yield findByKey(query, tableName, uniqueKey, forUpdate);
-    debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     if (!row) {
         throw new node_errors_1.NotFoundError(`${instanceName} ` +
             `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
