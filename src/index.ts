@@ -22,7 +22,7 @@ const findByKey = async (
     `WHERE ${Object.keys(key)
       .map(
         (x, i) =>
-          `${x} ` + (Object.values(i) == null ? 'IS NULL' : `= $${i + 1}`),
+          `${x} ` + (Object.values(key)[i] == null ? 'IS NULL' : `= $${i + 1}`),
       )
       .join(' AND ')} ` +
     `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
