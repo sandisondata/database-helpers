@@ -27,7 +27,7 @@ const findByKey = async (
   debug.write(MessageType.Value, `text=${text}`);
   const values = Object.values(key);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
-  debug.write(MessageType.Step, 'Finding rows...');
+  debug.write(MessageType.Step, 'Finding row...');
   const row: object | null = (await query(text, values)).rows[0] || null;
   debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
   return row;
