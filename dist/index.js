@@ -20,10 +20,10 @@ const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, 
         `forUpdate=${forUpdate}`);
     const text = `SELECT * FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
-            .map((x, i) => `${x} = $${i + 1}`)
+            .map((x, i) => `${x} ` + (Object.values(i + 1) == null ? 'IS NULL' : ` = $${i + 1}`))
             .join(' AND ')} ` +
         `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
-    debug.write(node_debug_1.MessageType.Value, `text=${text}`);
+    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = Object.values(key);
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row...');
@@ -105,7 +105,7 @@ const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, 
             .map((x, i) => `$${i + 1}`)
             .join(', ')}) ` +
         'RETURNING *';
-    debug.write(node_debug_1.MessageType.Value, `text=${text}`);
+    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = Object.values(data);
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Creating row...');
@@ -127,7 +127,7 @@ const updateRow = (query, tableName, primaryKey, data) => __awaiter(void 0, void
             .map((x, i) => `${x} = $${Object.keys(data).length + i + 1}`)
             .join(' AND ')} ` +
         'RETURNING *';
-    debug.write(node_debug_1.MessageType.Value, `text=${text}`);
+    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = [].concat(...Object.values(data), ...Object.values(primaryKey));
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Updating row...');
@@ -143,7 +143,7 @@ const deleteRow = (query, tableName, primaryKey) => __awaiter(void 0, void 0, vo
         `WHERE ${Object.keys(primaryKey)
             .map((x, i) => `${x} = $${i + 1}`)
             .join(' AND ')}`;
-    debug.write(node_debug_1.MessageType.Value, `text=${text}`);
+    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = Object.values(primaryKey);
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Deleting row...');

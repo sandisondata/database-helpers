@@ -20,10 +20,13 @@ const findByKey = async (
   const text =
     `SELECT * FROM ${tableName} ` +
     `WHERE ${Object.keys(key)
-      .map((x, i) => `${x} = $${i + 1}`)
+      .map(
+        (x, i) =>
+          `${x} ` + (Object.values(i + 1) == null ? 'IS NULL' : ` = $${i + 1}`),
+      )
       .join(' AND ')} ` +
     `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
-  debug.write(MessageType.Value, `text=${text}`);
+  debug.write(MessageType.Value, `text=(${text})`);
   const values = Object.values(key);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Finding row...');
@@ -152,7 +155,7 @@ export const createRow = async (
       .map((x, i) => `$${i + 1}`)
       .join(', ')}) ` +
     'RETURNING *';
-  debug.write(MessageType.Value, `text=${text}`);
+  debug.write(MessageType.Value, `text=(${text})`);
   const values = Object.values(data);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Creating row...');
@@ -183,7 +186,7 @@ export const updateRow = async (
       .map((x, i) => `${x} = $${Object.keys(data).length + i + 1}`)
       .join(' AND ')} ` +
     'RETURNING *';
-  debug.write(MessageType.Value, `text=${text}`);
+  debug.write(MessageType.Value, `text=(${text})`);
   const values = [].concat(
     ...Object.values(data),
     ...Object.values(primaryKey),
@@ -210,7 +213,7 @@ export const deleteRow = async (
     `WHERE ${Object.keys(primaryKey)
       .map((x, i) => `${x} = $${i + 1}`)
       .join(' AND ')}`;
-  debug.write(MessageType.Value, `text=${text}`);
+  debug.write(MessageType.Value, `text=(${text})`);
   const values = Object.values(primaryKey);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Deleting row...');
