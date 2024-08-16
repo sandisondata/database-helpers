@@ -77,7 +77,9 @@ export const checkUniqueKey = async (
     throw new ConflictError(
       `${instanceName} ` +
         `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
-        `value (${Object.values(uniqueKey).join(', ')}) ` +
+        `value (${Object.values(uniqueKey)
+          .map((x) => (x == null ? 'null' : x))
+          .join(', ')}) ` +
         'already exists',
     );
   }
@@ -131,7 +133,9 @@ export const findByUniqueKey = async (
     throw new NotFoundError(
       `${instanceName} ` +
         `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
-        `value (${Object.values(uniqueKey).join(', ')}) ` +
+        `value (${Object.values(uniqueKey)
+          .map((x) => (x == null ? 'null' : x))
+          .join(', ')}) ` +
         'not found',
     );
   }
