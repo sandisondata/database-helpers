@@ -20,7 +20,7 @@ const findByKey = async (
   const text =
     `SELECT * FROM ${tableName} ` +
     `WHERE ${Object.keys(key)
-      .map((x, i) => `${x} ` + (key[i] == null ? 'IS NULL' : `= $${i + 1}`))
+      .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL' : `= $${i + 1}`))
       .join(' AND ')} ` +
     `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
   debug.write(MessageType.Value, `text=(${text})`);
