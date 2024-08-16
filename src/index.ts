@@ -1,5 +1,9 @@
 import { Query } from 'database';
+import { Debug, MessageType } from 'node-debug';
 import { NotFoundError, ConflictError } from 'node-errors';
+
+let debug: Debug;
+const debugSource = 'database-helpers';
 
 const findByKey = async (
   query: Query,
@@ -7,17 +11,25 @@ const findByKey = async (
   key: Record<string, any>,
   forUpdate = false,
 ) => {
-  const rows: object[] = (
-    await query(
-      `SELECT * FROM ${tableName} ` +
-        `WHERE ${Object.keys(key)
-          .map((x, i) => `${x} = $${i + 1}`)
-          .join(' AND ')} ` +
-        `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`,
-      Object.values(key),
-    )
-  ).rows;
-  return rows.length ? rows[0] : null;
+  debug = new Debug(`${debugSource}.findByKey`);
+  debug.write(
+    MessageType.Entry,
+    `tableName=${tableName};key=${JSON.stringify(key)};forUpdate=${forUpdate}`,
+  );
+  const text =
+    `SELECT * FROM ${tableName} ` +
+    `WHERE ${Object.keys(key)
+      .map((x, i) => `${x} = $${i + 1}`)
+      .join(' AND ')} ` +
+    `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
+  debug.write(MessageType.Value, `text=${text}`);
+  const values = Object.values(key);
+  debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
+  const rows: object[] = (await query(text, values)).rows;
+  debug.write(MessageType.Value, `rows=${JSON.stringify(rows)}`);
+  const result = rows.length ? rows[0] : null;
+  debug.write(MessageType.Exit, `result=${JSON.stringify(result)}`);
+  return result;
 };
 
 export const checkPrimaryKey = async (

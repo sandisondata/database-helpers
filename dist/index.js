@@ -10,14 +10,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteRow = exports.updateRow = exports.createRow = exports.findByUniqueKey = exports.findByPrimaryKey = exports.checkUniqueKey = exports.checkPrimaryKey = void 0;
+const node_debug_1 = require("node-debug");
 const node_errors_1 = require("node-errors");
+let debug;
+const debugSource = 'database-helpers';
 const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, key_1, ...args_1], void 0, function* (query, tableName, key, forUpdate = false) {
-    const rows = (yield query(`SELECT * FROM ${tableName} ` +
+    debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};key=${JSON.stringify(key)};forUpdate=${forUpdate}`);
+    const text = `SELECT * FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} = $${i + 1}`)
             .join(' AND ')} ` +
-        `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`, Object.values(key))).rows;
-    return rows.length ? rows[0] : null;
+        `LIMIT 1${forUpdate ? ' FOR UPDATE' : ''}`;
+    debug.write(node_debug_1.MessageType.Value, `text=${text}`);
+    const values = Object.values(key);
+    debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
+    const rows = (yield query(text, values)).rows;
+    debug.write(node_debug_1.MessageType.Value, `rows=${JSON.stringify(rows)}`);
+    const result = rows.length ? rows[0] : null;
+    debug.write(node_debug_1.MessageType.Exit, `result=${JSON.stringify(result)}`);
+    return result;
 });
 const checkPrimaryKey = (query, tableName, instanceName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
     const row = yield findByKey(query, tableName, primaryKey);
