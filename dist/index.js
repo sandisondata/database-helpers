@@ -125,7 +125,7 @@ const updateRow = (query, tableName, primaryKey, data) => __awaiter(void 0, void
     const text = `UPDATE ${tableName} ` +
         `SET ${Object.keys(data)
             .map((x, i) => `${x} = $${i + 1}`)
-            .join(' AND ')} ` +
+            .join(', ')} ` +
         `WHERE ${Object.keys(primaryKey)
             .map((x, i) => `${x} = $${Object.keys(data).length + i + 1}`)
             .join(' AND ')} ` +
