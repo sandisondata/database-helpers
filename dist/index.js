@@ -13,12 +13,17 @@ exports.deleteRow = exports.updateRow = exports.createRow = exports.findByUnique
 const node_debug_1 = require("node-debug");
 const node_errors_1 = require("node-errors");
 const debugSource = 'database-helpers';
-const findByKey = (query_1, tableName_1, key_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, key_1, ...args_1], void 0, function* (query, tableName, key, forUpdate = false) {
+const findByKey = (query, tableName, key, options) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `key=${JSON.stringify(key)};` +
-        `forUpdate=${forUpdate}`);
-    const text = `SELECT * FROM ${tableName} ` +
+        `key=${JSON.stringify(key)}` +
+        (typeof options !== 'undefined'
+            ? `;options=${JSON.stringify(options)}`
+            : ''));
+    const columnNames = options === null || options === void 0 ? void 0 : options.columnNames;
+    const forUpdate = (options === null || options === void 0 ? void 0 : options.forUpdate) || false;
+    const text = `SELECT ${typeof columnNames !== 'undefined' ? columnNames.join(', ') : '*'} ` +
+        `FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`)
             .join(' AND ')} ` +
@@ -65,14 +70,16 @@ const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkUniqueKey = checkUniqueKey;
-const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, primaryKey_1, ...args_1], void 0, function* (query, tableName, instanceName, primaryKey, forUpdate = false) {
+const findByPrimaryKey = (query, tableName, instanceName, primaryKey, options) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByPrimaryKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `instanceName=${instanceName};` +
-        `primaryKey=${JSON.stringify(primaryKey)};` +
-        `forUpdate=${forUpdate}`);
+        `primaryKey=${JSON.stringify(primaryKey)}` +
+        (typeof options !== 'undefined'
+            ? `;options=${JSON.stringify(options)}`
+            : ''));
     debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
-    const row = yield findByKey(query, tableName, primaryKey, forUpdate);
+    const row = yield findByKey(query, tableName, primaryKey, options);
     if (!row) {
         throw new node_errors_1.NotFoundError(`${instanceName} not found`);
     }
@@ -80,14 +87,16 @@ const findByPrimaryKey = (query_1, tableName_1, instanceName_1, primaryKey_1, ..
     return row;
 });
 exports.findByPrimaryKey = findByPrimaryKey;
-const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1) => __awaiter(void 0, [query_1, tableName_1, instanceName_1, uniqueKey_1, ...args_1], void 0, function* (query, tableName, instanceName, uniqueKey, forUpdate = false) {
+const findByUniqueKey = (query, tableName, instanceName, uniqueKey, options) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByUniqueKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `instanceName=${instanceName};` +
-        `uniqueKey=${JSON.stringify(uniqueKey)};` +
-        `forUpdate=${forUpdate}`);
+        `uniqueKey=${JSON.stringify(uniqueKey)}` +
+        (typeof options !== 'undefined'
+            ? `;options=${JSON.stringify(options)}`
+            : ''));
     debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
-    const row = yield findByKey(query, tableName, uniqueKey, forUpdate);
+    const row = yield findByKey(query, tableName, uniqueKey, options);
     if (!row) {
         throw new node_errors_1.NotFoundError(`${instanceName} ` +
             `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
@@ -100,14 +109,20 @@ const findByUniqueKey = (query_1, tableName_1, instanceName_1, uniqueKey_1, ...a
     return row;
 });
 exports.findByUniqueKey = findByUniqueKey;
-const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, function* () {
+const createRow = (query, tableName, data, returningColumnNames) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.createRow`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};data=${JSON.stringify(data)}`);
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
+        `data=${JSON.stringify(data)}` +
+        (typeof returningColumnNames !== 'undefined'
+            ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
+            : ''));
     const text = `INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
         `VALUES (${Object.keys(data)
             .map((x, i) => `$${i + 1}`)
             .join(', ')}) ` +
-        'RETURNING *';
+        `RETURNING ${typeof returningColumnNames !== 'undefined'
+            ? returningColumnNames.join(', ')
+            : '*'}`;
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = Object.values(data);
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
@@ -117,11 +132,14 @@ const createRow = (query, tableName, data) => __awaiter(void 0, void 0, void 0, 
     return row;
 });
 exports.createRow = createRow;
-const updateRow = (query, tableName, primaryKey, data) => __awaiter(void 0, void 0, void 0, function* () {
+const updateRow = (query, tableName, primaryKey, data, returningColumnNames) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.updateRow`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
         `primaryKey=${JSON.stringify(primaryKey)};` +
-        `data=${JSON.stringify(data)}`);
+        `data=${JSON.stringify(data)}` +
+        (typeof returningColumnNames !== 'undefined'
+            ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
+            : ''));
     const text = `UPDATE ${tableName} ` +
         `SET ${Object.keys(data)
             .map((x, i) => `${x} = $${i + 1}`)
@@ -129,9 +147,11 @@ const updateRow = (query, tableName, primaryKey, data) => __awaiter(void 0, void
         `WHERE ${Object.keys(primaryKey)
             .map((x, i) => `${x} = $${Object.keys(data).length + i + 1}`)
             .join(' AND ')} ` +
-        'RETURNING *';
+        `RETURNING ${typeof returningColumnNames !== 'undefined'
+            ? returningColumnNames.join(', ')
+            : '*'}`;
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
-    const values = [].concat(...Object.values(data), ...Object.values(primaryKey));
+    const values = [...Object.values(data), ...Object.values(primaryKey)];
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Updating row...');
     const row = (yield query(text, values)).rows[0];

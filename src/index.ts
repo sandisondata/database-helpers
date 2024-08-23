@@ -4,21 +4,31 @@ import { NotFoundError, ConflictError } from 'node-errors';
 
 const debugSource = 'database-helpers';
 
+interface Options {
+  columnNames?: string[];
+  forUpdate?: boolean;
+}
+
 const findByKey = async (
   query: Query,
   tableName: string,
   key: Record<string, any>,
-  forUpdate = false,
+  options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};` +
-      `key=${JSON.stringify(key)};` +
-      `forUpdate=${forUpdate}`,
+      `key=${JSON.stringify(key)}` +
+      (typeof options !== 'undefined'
+        ? `;options=${JSON.stringify(options)}`
+        : ''),
   );
+  const columnNames = options?.columnNames;
+  const forUpdate = options?.forUpdate || false;
   const text =
-    `SELECT * FROM ${tableName} ` +
+    `SELECT ${typeof columnNames !== 'undefined' ? columnNames.join(', ') : '*'} ` +
+    `FROM ${tableName} ` +
     `WHERE ${Object.keys(key)
       .map(
         (x, i) =>
@@ -92,18 +102,20 @@ export const findByPrimaryKey = async (
   tableName: string,
   instanceName: string,
   primaryKey: Record<string, any>,
-  forUpdate = false,
+  options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByPrimaryKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};` +
       `instanceName=${instanceName};` +
-      `primaryKey=${JSON.stringify(primaryKey)};` +
-      `forUpdate=${forUpdate}`,
+      `primaryKey=${JSON.stringify(primaryKey)}` +
+      (typeof options !== 'undefined'
+        ? `;options=${JSON.stringify(options)}`
+        : ''),
   );
   debug.write(MessageType.Step, 'Finding row by key...');
-  const row = await findByKey(query, tableName, primaryKey, forUpdate);
+  const row = await findByKey(query, tableName, primaryKey, options);
   if (!row) {
     throw new NotFoundError(`${instanceName} not found`);
   }
@@ -116,18 +128,20 @@ export const findByUniqueKey = async (
   tableName: string,
   instanceName: string,
   uniqueKey: Record<string, any>,
-  forUpdate = false,
+  options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByUniqueKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};` +
       `instanceName=${instanceName};` +
-      `uniqueKey=${JSON.stringify(uniqueKey)};` +
-      `forUpdate=${forUpdate}`,
+      `uniqueKey=${JSON.stringify(uniqueKey)}` +
+      (typeof options !== 'undefined'
+        ? `;options=${JSON.stringify(options)}`
+        : ''),
   );
   debug.write(MessageType.Step, 'Finding row by key...');
-  const row = await findByKey(query, tableName, uniqueKey, forUpdate);
+  const row = await findByKey(query, tableName, uniqueKey, options);
   if (!row) {
     throw new NotFoundError(
       `${instanceName} ` +
@@ -146,18 +160,27 @@ export const createRow = async (
   query: Query,
   tableName: string,
   data: Record<string, any>,
+  returningColumnNames?: string[],
 ) => {
   const debug = new Debug(`${debugSource}.createRow`);
   debug.write(
     MessageType.Entry,
-    `tableName=${tableName};data=${JSON.stringify(data)}`,
+    `tableName=${tableName};` +
+      `data=${JSON.stringify(data)}` +
+      (typeof returningColumnNames !== 'undefined'
+        ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
+        : ''),
   );
   const text =
     `INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
     `VALUES (${Object.keys(data)
       .map((x, i) => `$${i + 1}`)
       .join(', ')}) ` +
-    'RETURNING *';
+    `RETURNING ${
+      typeof returningColumnNames !== 'undefined'
+        ? returningColumnNames.join(', ')
+        : '*'
+    }`;
   debug.write(MessageType.Value, `text=(${text})`);
   const values = Object.values(data);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
@@ -172,13 +195,17 @@ export const updateRow = async (
   tableName: string,
   primaryKey: Record<string, any>,
   data: Record<string, any>,
+  returningColumnNames?: string[],
 ) => {
   const debug = new Debug(`${debugSource}.updateRow`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};` +
       `primaryKey=${JSON.stringify(primaryKey)};` +
-      `data=${JSON.stringify(data)}`,
+      `data=${JSON.stringify(data)}` +
+      (typeof returningColumnNames !== 'undefined'
+        ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
+        : ''),
   );
   const text =
     `UPDATE ${tableName} ` +
@@ -188,12 +215,13 @@ export const updateRow = async (
     `WHERE ${Object.keys(primaryKey)
       .map((x, i) => `${x} = $${Object.keys(data).length + i + 1}`)
       .join(' AND ')} ` +
-    'RETURNING *';
+    `RETURNING ${
+      typeof returningColumnNames !== 'undefined'
+        ? returningColumnNames.join(', ')
+        : '*'
+    }`;
   debug.write(MessageType.Value, `text=(${text})`);
-  const values = [].concat(
-    ...Object.values(data),
-    ...Object.values(primaryKey),
-  );
+  const values = [...Object.values(data), ...Object.values(primaryKey)];
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Updating row...');
   const row = (await query(text, values)).rows[0] as object;
