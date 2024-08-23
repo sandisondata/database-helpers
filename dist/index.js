@@ -20,15 +20,15 @@ const findByKey = (query, tableName, key, options) => __awaiter(void 0, void 0, 
         (typeof options !== 'undefined'
             ? `;options=${JSON.stringify(options)}`
             : ''));
-    const columnNames = options === null || options === void 0 ? void 0 : options.columnNames;
-    const forUpdate = (options === null || options === void 0 ? void 0 : options.forUpdate) || false;
-    const text = `SELECT ${typeof columnNames !== 'undefined' ? columnNames.join(', ') : '*'} ` +
+    const text = `SELECT ${typeof (options === null || options === void 0 ? void 0 : options.columnNames) !== 'undefined'
+        ? options.columnNames.join(', ')
+        : '*'} ` +
         `FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`)
             .join(' AND ')} ` +
         'LIMIT 1' +
-        (forUpdate ? ' FOR UPDATE' : '');
+        ((options === null || options === void 0 ? void 0 : options.forUpdate) || false ? ' FOR UPDATE' : '');
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = Object.values(key).map((x) => (x == null ? 1 : x));
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);

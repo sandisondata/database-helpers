@@ -24,10 +24,12 @@ const findByKey = async (
         ? `;options=${JSON.stringify(options)}`
         : ''),
   );
-  const columnNames = options?.columnNames;
-  const forUpdate = options?.forUpdate || false;
   const text =
-    `SELECT ${typeof columnNames !== 'undefined' ? columnNames.join(', ') : '*'} ` +
+    `SELECT ${
+      typeof options?.columnNames !== 'undefined'
+        ? options.columnNames.join(', ')
+        : '*'
+    } ` +
     `FROM ${tableName} ` +
     `WHERE ${Object.keys(key)
       .map(
@@ -36,7 +38,7 @@ const findByKey = async (
       )
       .join(' AND ')} ` +
     'LIMIT 1' +
-    (forUpdate ? ' FOR UPDATE' : '');
+    (options?.forUpdate || false ? ' FOR UPDATE' : '');
   debug.write(MessageType.Value, `text=(${text})`);
   const values = Object.values(key).map((x) => (x == null ? 1 : x));
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
