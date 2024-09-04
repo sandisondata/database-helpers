@@ -26,7 +26,7 @@ const findByKey = (query, tableName, key, options) => __awaiter(void 0, void 0, 
         `FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`)
-            .join(' AND ')} ` +
+            .join(' AND ')}` +
         ((options === null || options === void 0 ? void 0 : options.forUpdate) || false ? ' FOR UPDATE' : '');
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = Object.values(key).map((x) => (x == null ? 1 : x));

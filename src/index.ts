@@ -36,7 +36,7 @@ const findByKey = async (
         (x, i) =>
           `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`,
       )
-      .join(' AND ')} ` +
+      .join(' AND ')}` +
     (options?.forUpdate || false ? ' FOR UPDATE' : '');
   debug.write(MessageType.Value, `text=(${text})`);
   const values = Object.values(key).map((x) => (x == null ? 1 : x));
