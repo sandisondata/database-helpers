@@ -28,7 +28,7 @@ const findByKey = async (
     `SELECT ${
       typeof options?.columnNames !== 'undefined'
         ? options.columnNames.join(', ')
-        : '1'
+        : '*'
     } ` +
     `FROM ${tableName} ` +
     `WHERE ${Object.keys(key)
@@ -173,11 +173,15 @@ export const createRow = async (
         : ''),
   );
   const text =
-    `INSERT INTO ${tableName} (${Object.keys(data).join(', ')}) ` +
-    `VALUES (${Object.keys(data)
-      .map((x, i) => `$${i + 1}`)
-      .join(', ')}) ` +
-    `RETURNING ${
+    `INSERT INTO ${tableName} ` +
+    (Object.keys(data).length ? `(${Object.keys(data).join(', ')}) ` : '') +
+    'VALUES (' +
+    (Object.keys(data).length
+      ? `${Object.keys(data)
+          .map((x, i) => `$${i + 1}`)
+          .join(', ')}`
+      : 'default') +
+    `) RETURNING ${
       typeof returningColumnNames !== 'undefined'
         ? returningColumnNames.join(', ')
         : '*'
