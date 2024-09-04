@@ -28,7 +28,7 @@ const findByKey = async (
     `SELECT ${
       typeof options?.columnNames !== 'undefined'
         ? options.columnNames.join(', ')
-        : '*'
+        : '1'
     } ` +
     `FROM ${tableName} ` +
     `WHERE ${Object.keys(key)

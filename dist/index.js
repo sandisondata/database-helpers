@@ -22,7 +22,7 @@ const findByKey = (query, tableName, key, options) => __awaiter(void 0, void 0, 
             : ''));
     const text = `SELECT ${typeof (options === null || options === void 0 ? void 0 : options.columnNames) !== 'undefined'
         ? options.columnNames.join(', ')
-        : '*'} ` +
+        : '1'} ` +
         `FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`)
