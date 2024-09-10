@@ -12,7 +12,7 @@ interface Options {
 const findByKey = async (
   query: Query,
   tableName: string,
-  key: Record<string, any>,
+  key: Record<string, string | number | boolean | null>,
   options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByKey`);
@@ -51,7 +51,7 @@ export const checkPrimaryKey = async (
   query: Query,
   tableName: string,
   instanceName: string,
-  primaryKey: Record<string, any>,
+  primaryKey: Record<string, string | number>,
 ) => {
   const debug = new Debug(`${debugSource}.checkPrimaryKey`);
   debug.write(
@@ -73,7 +73,7 @@ export const checkUniqueKey = async (
   query: Query,
   tableName: string,
   instanceName: string,
-  uniqueKey: Record<string, any>,
+  uniqueKey: Record<string, string | number | boolean | null>,
 ) => {
   const debug = new Debug(`${debugSource}.checkUniqueKey`);
   debug.write(
@@ -90,7 +90,9 @@ export const checkUniqueKey = async (
       `${instanceName} ` +
         `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
         `value (${Object.values(uniqueKey)
-          .map((x) => (x == null ? 'null' : x))
+          .map((x) =>
+            typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x,
+          )
           .join(', ')}) ` +
         'already exists',
     );
@@ -102,7 +104,7 @@ export const findByPrimaryKey = async (
   query: Query,
   tableName: string,
   instanceName: string,
-  primaryKey: Record<string, any>,
+  primaryKey: Record<string, string | number>,
   options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByPrimaryKey`);
@@ -128,7 +130,7 @@ export const findByUniqueKey = async (
   query: Query,
   tableName: string,
   instanceName: string,
-  uniqueKey: Record<string, any>,
+  uniqueKey: Record<string, string | number | boolean | null>,
   options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByUniqueKey`);
@@ -148,7 +150,9 @@ export const findByUniqueKey = async (
       `${instanceName} ` +
         `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
         `value (${Object.values(uniqueKey)
-          .map((x) => (x == null ? 'null' : x))
+          .map((x) =>
+            typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x,
+          )
           .join(', ')}) ` +
         'not found',
     );
@@ -198,7 +202,7 @@ export const createRow = async (
 export const updateRow = async (
   query: Query,
   tableName: string,
-  primaryKey: Record<string, any>,
+  primaryKey: Record<string, string | number>,
   data: Record<string, any>,
   returningColumnNames?: string[],
 ) => {
@@ -237,7 +241,7 @@ export const updateRow = async (
 export const deleteRow = async (
   query: Query,
   tableName: string,
-  primaryKey: Record<string, any>,
+  primaryKey: Record<string, string | number>,
 ) => {
   const debug = new Debug(`${debugSource}.deleteRow`);
   debug.write(

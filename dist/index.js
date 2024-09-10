@@ -62,7 +62,7 @@ const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(
         throw new node_errors_1.ConflictError(`${instanceName} ` +
             `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
             `value (${Object.values(uniqueKey)
-                .map((x) => (x == null ? 'null' : x))
+                .map((x) => typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x)
                 .join(', ')}) ` +
             'already exists');
     }
@@ -100,7 +100,7 @@ const findByUniqueKey = (query, tableName, instanceName, uniqueKey, options) => 
         throw new node_errors_1.NotFoundError(`${instanceName} ` +
             `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
             `value (${Object.values(uniqueKey)
-                .map((x) => (x == null ? 'null' : x))
+                .map((x) => typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x)
                 .join(', ')}) ` +
             'not found');
     }
