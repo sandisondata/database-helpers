@@ -9,57 +9,77 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteRow = exports.updateRow = exports.createRow = exports.findByUniqueKey = exports.findByPrimaryKey = exports.checkUniqueKey = exports.checkPrimaryKey = void 0;
+exports.deleteRow = exports.updateRow = exports.createRow = exports.checkForeignKey = exports.findByUniqueKey = exports.checkUniqueKey = exports.findByPrimaryKey = exports.checkPrimaryKey = void 0;
 const node_debug_1 = require("node-debug");
 const node_errors_1 = require("node-errors");
 const debugSource = 'database-helpers';
-const findByKey = (query, tableName, key, options) => __awaiter(void 0, void 0, void 0, function* () {
+const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `key=${JSON.stringify(key)}` +
-        (typeof options !== 'undefined'
-            ? `;options=${JSON.stringify(options)}`
-            : ''));
-    const text = `SELECT ${typeof (options === null || options === void 0 ? void 0 : options.columnNames) !== 'undefined'
-        ? options.columnNames.join(', ')
+        `key=${JSON.stringify(key)};` +
+        `isUnique=${JSON.stringify(isUnique)}`);
+    const text = `SELECT ${typeof isUnique !== 'boolean' &&
+        typeof isUnique.columnNames !== 'undefined'
+        ? isUnique.columnNames.join(', ')
         : '*'} ` +
         `FROM ${tableName} ` +
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`)
             .join(' AND ')}` +
-        ((options === null || options === void 0 ? void 0 : options.forUpdate) || false ? ' FOR UPDATE' : '');
+        ((typeof isUnique !== 'boolean' && isUnique.forUpdate) || false
+            ? ' FOR UPDATE'
+            : '');
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
     const values = Object.values(key).map((x) => (x == null ? 1 : x));
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
-    debug.write(node_debug_1.MessageType.Step, 'Finding row...');
-    const row = (yield query(text, values)).rows[0] || null;
-    debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
-    return row;
+    if (typeof isUnique !== 'boolean' || isUnique) {
+        debug.write(node_debug_1.MessageType.Step, 'Finding row...');
+        const row = (yield query(text, values)).rows[0] || null;
+        debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
+        return row;
+    }
+    else {
+        debug.write(node_debug_1.MessageType.Step, 'Finding row count...');
+        const rowCount = (yield query(text, values)).rowCount || 0;
+        debug.write(node_debug_1.MessageType.Exit, `rowCount=${rowCount}`);
+        return rowCount;
+    }
 });
-const checkPrimaryKey = (query, tableName, instanceName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
+const checkPrimaryKey = (query, tableName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.checkPrimaryKey`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `instanceName=${instanceName};` +
-        `primaryKey=${JSON.stringify(primaryKey)}`);
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`);
     debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
-    const row = yield findByKey(query, tableName, primaryKey);
+    const row = yield findByKey(query, tableName, primaryKey, true);
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     if (row) {
-        throw new node_errors_1.ConflictError(`${instanceName} already exists`);
+        throw new node_errors_1.ConflictError(`Table (${tableName}) row already exists`);
     }
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkPrimaryKey = checkPrimaryKey;
-const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
-    const debug = new node_debug_1.Debug(`${debugSource}.checkUniqueKey`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `instanceName=${instanceName};` +
-        `uniqueKey=${JSON.stringify(uniqueKey)};`);
+const findByPrimaryKey = (query, tableName, primaryKey, options) => __awaiter(void 0, void 0, void 0, function* () {
+    const debug = new node_debug_1.Debug(`${debugSource}.findByPrimaryKey`);
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}` +
+        (typeof options !== 'undefined'
+            ? `;options=${JSON.stringify(options)}`
+            : ''));
     debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
-    const row = yield findByKey(query, tableName, uniqueKey);
+    const row = yield findByKey(query, tableName, primaryKey, options || true);
+    if (!row) {
+        throw new node_errors_1.NotFoundError(`Table (${tableName}) row not found`);
+    }
+    debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
+    return row;
+});
+exports.findByPrimaryKey = findByPrimaryKey;
+const checkUniqueKey = (query, tableName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
+    const debug = new node_debug_1.Debug(`${debugSource}.checkUniqueKey`);
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)};`);
+    debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
+    const row = yield findByKey(query, tableName, uniqueKey, true);
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     if (row) {
-        throw new node_errors_1.ConflictError(`${instanceName} ` +
+        throw new node_errors_1.ConflictError(`Table (${tableName}) row with ` +
             `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
             `value (${Object.values(uniqueKey)
                 .map((x) => typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x)
@@ -69,35 +89,16 @@ const checkUniqueKey = (query, tableName, instanceName, uniqueKey) => __awaiter(
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkUniqueKey = checkUniqueKey;
-const findByPrimaryKey = (query, tableName, instanceName, primaryKey, options) => __awaiter(void 0, void 0, void 0, function* () {
-    const debug = new node_debug_1.Debug(`${debugSource}.findByPrimaryKey`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `instanceName=${instanceName};` +
-        `primaryKey=${JSON.stringify(primaryKey)}` +
-        (typeof options !== 'undefined'
-            ? `;options=${JSON.stringify(options)}`
-            : ''));
-    debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
-    const row = yield findByKey(query, tableName, primaryKey, options);
-    if (!row) {
-        throw new node_errors_1.NotFoundError(`${instanceName} not found`);
-    }
-    debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
-    return row;
-});
-exports.findByPrimaryKey = findByPrimaryKey;
-const findByUniqueKey = (query, tableName, instanceName, uniqueKey, options) => __awaiter(void 0, void 0, void 0, function* () {
+const findByUniqueKey = (query, tableName, uniqueKey, options) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByUniqueKey`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `instanceName=${instanceName};` +
-        `uniqueKey=${JSON.stringify(uniqueKey)}` +
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)}` +
         (typeof options !== 'undefined'
             ? `;options=${JSON.stringify(options)}`
             : ''));
     debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
-    const row = yield findByKey(query, tableName, uniqueKey, options);
+    const row = yield findByKey(query, tableName, uniqueKey, options || true);
     if (!row) {
-        throw new node_errors_1.NotFoundError(`${instanceName} ` +
+        throw new node_errors_1.NotFoundError(`Table (${tableName}) row with ` +
             `unique key (${Object.keys(uniqueKey).join(', ')}) ` +
             `value (${Object.values(uniqueKey)
                 .map((x) => typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x)
@@ -108,6 +109,23 @@ const findByUniqueKey = (query, tableName, instanceName, uniqueKey, options) => 
     return row;
 });
 exports.findByUniqueKey = findByUniqueKey;
+const checkForeignKey = (query, tableName, foreignKey) => __awaiter(void 0, void 0, void 0, function* () {
+    const debug = new node_debug_1.Debug(`${debugSource}.checkForeignKey`);
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`);
+    debug.write(node_debug_1.MessageType.Step, 'Finding row count by key...');
+    const rowCount = yield findByKey(query, tableName, foreignKey, false);
+    debug.write(node_debug_1.MessageType.Value, `rowCount=${rowCount}`);
+    if (rowCount) {
+        throw new node_errors_1.ConflictError(`Table (${tableName}) row${rowCount == 1 ? '' : `s (${rowCount})`} with ` +
+            `foreign key (${Object.keys(foreignKey).join(', ')}) ` +
+            `value (${Object.values(foreignKey)
+                .map((x) => typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x)
+                .join(', ')}) ` +
+            `exist${rowCount == 1 ? 's' : ''}`);
+    }
+    debug.write(node_debug_1.MessageType.Exit);
+});
+exports.checkForeignKey = checkForeignKey;
 const createRow = (query, tableName, data, returningColumnNames) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.createRow`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
