@@ -77,29 +77,6 @@ export const checkPrimaryKey = async (
   debug.write(MessageType.Exit);
 };
 
-export const findByPrimaryKey = async (
-  query: Query,
-  tableName: string,
-  primaryKey: Record<string, string | number>,
-  options?: Options,
-) => {
-  const debug = new Debug(`${debugSource}.findByPrimaryKey`);
-  debug.write(
-    MessageType.Entry,
-    `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}` +
-      (typeof options !== 'undefined'
-        ? `;options=${JSON.stringify(options)}`
-        : ''),
-  );
-  debug.write(MessageType.Step, 'Finding row by key...');
-  const row = await findByKey(query, tableName, primaryKey, options || true);
-  if (!row) {
-    throw new NotFoundError(`Table (${tableName}) row not found`);
-  }
-  debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
-  return row;
-};
-
 export const checkUniqueKey = async (
   query: Query,
   tableName: string,
@@ -126,6 +103,57 @@ export const checkUniqueKey = async (
     );
   }
   debug.write(MessageType.Exit);
+};
+
+export const checkForeignKey = async (
+  query: Query,
+  tableName: string,
+  foreignKey: Record<string, string | number>,
+) => {
+  const debug = new Debug(`${debugSource}.checkForeignKey`);
+  debug.write(
+    MessageType.Entry,
+    `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`,
+  );
+  debug.write(MessageType.Step, 'Finding row count by key...');
+  const rowCount = await findByKey(query, tableName, foreignKey, false);
+  debug.write(MessageType.Value, `rowCount=${rowCount}`);
+  if (rowCount) {
+    throw new ConflictError(
+      `Table (${tableName}) row${rowCount == 1 ? '' : `s (${rowCount})`} with ` +
+        `foreign key (${Object.keys(foreignKey).join(', ')}) ` +
+        `value (${Object.values(foreignKey)
+          .map((x) =>
+            typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x,
+          )
+          .join(', ')}) ` +
+        `still exist${rowCount == 1 ? 's' : ''}`,
+    );
+  }
+  debug.write(MessageType.Exit);
+};
+
+export const findByPrimaryKey = async (
+  query: Query,
+  tableName: string,
+  primaryKey: Record<string, string | number>,
+  options?: Options,
+) => {
+  const debug = new Debug(`${debugSource}.findByPrimaryKey`);
+  debug.write(
+    MessageType.Entry,
+    `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}` +
+      (typeof options !== 'undefined'
+        ? `;options=${JSON.stringify(options)}`
+        : ''),
+  );
+  debug.write(MessageType.Step, 'Finding row by key...');
+  const row = await findByKey(query, tableName, primaryKey, options || true);
+  if (!row) {
+    throw new NotFoundError(`Table (${tableName}) row not found`);
+  }
+  debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
+  return row;
 };
 
 export const findByUniqueKey = async (
@@ -158,34 +186,6 @@ export const findByUniqueKey = async (
   }
   debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
   return row;
-};
-
-export const checkForeignKey = async (
-  query: Query,
-  tableName: string,
-  foreignKey: Record<string, string | number>,
-) => {
-  const debug = new Debug(`${debugSource}.checkForeignKey`);
-  debug.write(
-    MessageType.Entry,
-    `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`,
-  );
-  debug.write(MessageType.Step, 'Finding row count by key...');
-  const rowCount = await findByKey(query, tableName, foreignKey, false);
-  debug.write(MessageType.Value, `rowCount=${rowCount}`);
-  if (rowCount) {
-    throw new ConflictError(
-      `Table (${tableName}) row${rowCount == 1 ? '' : `s (${rowCount})`} with ` +
-        `foreign key (${Object.keys(foreignKey).join(', ')}) ` +
-        `value (${Object.values(foreignKey)
-          .map((x) =>
-            typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x,
-          )
-          .join(', ')}) ` +
-        `exist${rowCount == 1 ? 's' : ''}`,
-    );
-  }
-  debug.write(MessageType.Exit);
 };
 
 export const createRow = async (

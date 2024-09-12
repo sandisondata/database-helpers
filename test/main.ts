@@ -56,19 +56,27 @@ describe('main', (suiteContext) => {
     debug.write(MessageType.Exit);
     assert.ok(true);
   });
-  it('findByPrimaryKey', async (testContext) => {
-    debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
-    debug.write(MessageType.Entry);
-    //await findByPrimaryKey(database.query, tableName, { id: 0 });
-    await findByPrimaryKey(database.query, tableName, { id: 1 });
-    debug.write(MessageType.Exit);
-    assert.ok(true);
-  });
   it('checkUniqueKey', async (testContext) => {
     debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
     debug.write(MessageType.Entry);
     //await checkUniqueKey(database.query, tableName, { name: 'Joe Blogs' });
     await checkUniqueKey(database.query, tableName, { name: 'John Smith' });
+    debug.write(MessageType.Exit);
+    assert.ok(true);
+  });
+  it('checkForeignKey', async (testContext) => {
+    debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
+    debug.write(MessageType.Entry);
+    //await checkForeignKey(database.query, tableName, { parent_id: 1 });
+    await checkForeignKey(database.query, tableName, { parent_id: 0 });
+    debug.write(MessageType.Exit);
+    assert.ok(true);
+  });
+  it('findByPrimaryKey', async (testContext) => {
+    debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
+    debug.write(MessageType.Entry);
+    //await findByPrimaryKey(database.query, tableName, { id: 0 });
+    await findByPrimaryKey(database.query, tableName, { id: 1 });
     debug.write(MessageType.Exit);
     assert.ok(true);
   });
@@ -82,14 +90,6 @@ describe('main', (suiteContext) => {
       { name: 'Joe Blogs' },
       { columnNames: ['name', 'id'] },
     );
-    debug.write(MessageType.Exit);
-    assert.ok(true);
-  });
-  it('checkForeignKey', async (testContext) => {
-    debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
-    debug.write(MessageType.Entry);
-    //await checkForeignKey(database.query, tableName, { parent_id: 1 });
-    await checkForeignKey(database.query, tableName, { parent_id: 0 });
     debug.write(MessageType.Exit);
     assert.ok(true);
   });
