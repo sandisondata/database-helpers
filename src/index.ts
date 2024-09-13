@@ -21,8 +21,7 @@ const findByKey = async <
   const debug = new Debug(`${debugSource}.findByKey`);
   debug.write(
     MessageType.Entry,
-    `tableName=${tableName};` +
-      `key=${JSON.stringify(key)};` +
+    `tableName=${tableName};key=${JSON.stringify(key)};` +
       `isUnique=${JSON.stringify(isUnique)}`,
   );
   const text =
@@ -39,7 +38,7 @@ const findByKey = async <
           `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`,
       )
       .join(' AND ')}` +
-    ((typeof isUnique !== 'boolean' && isUnique.forUpdate) || false
+    (typeof isUnique !== 'boolean' && (isUnique.forUpdate || false)
       ? ' FOR UPDATE'
       : '');
   debug.write(MessageType.Value, `text=(${text})`);
@@ -197,8 +196,7 @@ export const createRow = async (
   const debug = new Debug(`${debugSource}.createRow`);
   debug.write(
     MessageType.Entry,
-    `tableName=${tableName};` +
-      `data=${JSON.stringify(data)}` +
+    `tableName=${tableName};data=${JSON.stringify(data)}` +
       (typeof returningColumnNames !== 'undefined'
         ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
         : ''),
@@ -236,8 +234,7 @@ export const updateRow = async (
   const debug = new Debug(`${debugSource}.updateRow`);
   debug.write(
     MessageType.Entry,
-    `tableName=${tableName};` +
-      `primaryKey=${JSON.stringify(primaryKey)};` +
+    `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)};` +
       `data=${JSON.stringify(data)}` +
       (typeof returningColumnNames !== 'undefined'
         ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`

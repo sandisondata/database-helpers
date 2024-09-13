@@ -15,8 +15,7 @@ const node_errors_1 = require("node-errors");
 const debugSource = 'database-helpers';
 const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `key=${JSON.stringify(key)};` +
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};key=${JSON.stringify(key)};` +
         `isUnique=${JSON.stringify(isUnique)}`);
     const text = `SELECT ${typeof isUnique !== 'boolean' &&
         typeof isUnique.columnNames !== 'undefined'
@@ -26,7 +25,7 @@ const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0,
         `WHERE ${Object.keys(key)
             .map((x, i) => `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`)
             .join(' AND ')}` +
-        ((typeof isUnique !== 'boolean' && isUnique.forUpdate) || false
+        (typeof isUnique !== 'boolean' && (isUnique.forUpdate || false)
             ? ' FOR UPDATE'
             : '');
     debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
