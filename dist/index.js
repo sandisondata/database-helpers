@@ -13,6 +13,18 @@ exports.deleteRow = exports.updateRow = exports.createRow = exports.findByUnique
 const node_debug_1 = require("node-debug");
 const node_errors_1 = require("node-errors");
 const debugSource = 'database-helpers';
+/**
+ * Find a row in a table by a key.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param key - Key to search for
+ * @param isUnique - Whether the key is unique, or an options object.
+ * If true, return the row. If false, return the row count.
+ * If an options object, the following properties are supported:
+ * - columnNames: An array of column names to select. Defaults to '*'.
+ * - forUpdate: If true, append 'FOR UPDATE' to the query. Defaults to false.
+ * @returns If isUnique is true, an object or null. If isUnique is false, a number.
+ */
 const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};key=${JSON.stringify(key)};` +
@@ -44,6 +56,13 @@ const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0,
         return rowCount;
     }
 });
+/**
+ * Check if a row with a given primary key already exists in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key to search for
+ * @throws ConflictError if the row already exists
+ */
 const checkPrimaryKey = (query, tableName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.checkPrimaryKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`);
@@ -56,6 +75,13 @@ const checkPrimaryKey = (query, tableName, primaryKey) => __awaiter(void 0, void
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkPrimaryKey = checkPrimaryKey;
+/**
+ * Check if a row with a given unique key already exists in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param uniqueKey - Unique key to search for
+ * @throws ConflictError if the row already exists
+ */
 const checkUniqueKey = (query, tableName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.checkUniqueKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)};`);
@@ -73,6 +99,13 @@ const checkUniqueKey = (query, tableName, uniqueKey) => __awaiter(void 0, void 0
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkUniqueKey = checkUniqueKey;
+/**
+ * Check if any rows with a given foreign key already exist in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param foreignKey - Foreign key to search for
+ * @throws ConflictError if any rows still exist
+ */
 const checkForeignKey = (query, tableName, foreignKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.checkForeignKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`);
@@ -90,6 +123,15 @@ const checkForeignKey = (query, tableName, foreignKey) => __awaiter(void 0, void
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.checkForeignKey = checkForeignKey;
+/**
+ * Find a row in a table by its primary key.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key of the row to search for
+ * @param options - Options to pass to findByKey (optional)
+ * @throws NotFoundError if the row is not found
+ * @returns Found row
+ */
 const findByPrimaryKey = (query, tableName, primaryKey, options) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByPrimaryKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}` +
@@ -105,6 +147,15 @@ const findByPrimaryKey = (query, tableName, primaryKey, options) => __awaiter(vo
     return row;
 });
 exports.findByPrimaryKey = findByPrimaryKey;
+/**
+ * Find a row in a table by its unique key.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param uniqueKey - Unique key of the row to search for
+ * @param options - Options to pass to findByKey (optional)
+ * @throws NotFoundError if the row is not found
+ * @returns Found row
+ */
 const findByUniqueKey = (query, tableName, uniqueKey, options) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.findByUniqueKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)}` +
@@ -125,10 +176,17 @@ const findByUniqueKey = (query, tableName, uniqueKey, options) => __awaiter(void
     return row;
 });
 exports.findByUniqueKey = findByUniqueKey;
+/**
+ * Create a new row in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param data - Data to insert into the table
+ * @param returningColumnNames - Column names to return in the result (optional)
+ * @returns Created row
+ */
 const createRow = (query, tableName, data, returningColumnNames) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.createRow`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `data=${JSON.stringify(data)}` +
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};data=${JSON.stringify(data)}` +
         (typeof returningColumnNames !== 'undefined'
             ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
             : ''));
@@ -152,10 +210,18 @@ const createRow = (query, tableName, data, returningColumnNames) => __awaiter(vo
     return row;
 });
 exports.createRow = createRow;
+/**
+ * Update an existing row in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key of the row to update
+ * @param data - Data to update in the table
+ * @param returningColumnNames - Column names to return in the result (optional)
+ * @returns Updated row
+ */
 const updateRow = (query, tableName, primaryKey, data, returningColumnNames) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.updateRow`);
-    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};` +
-        `primaryKey=${JSON.stringify(primaryKey)};` +
+    debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)};` +
         `data=${JSON.stringify(data)}` +
         (typeof returningColumnNames !== 'undefined'
             ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
@@ -179,6 +245,12 @@ const updateRow = (query, tableName, primaryKey, data, returningColumnNames) => 
     return row;
 });
 exports.updateRow = updateRow;
+/**
+ * Delete an existing row in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key of the row to delete
+ */
 const deleteRow = (query, tableName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.deleteRow`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`);

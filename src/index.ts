@@ -4,11 +4,23 @@ import { NotFoundError, ConflictError } from 'node-errors';
 
 const debugSource = 'database-helpers';
 
-interface Options {
+type Options = {
   columnNames?: string[];
   forUpdate?: boolean;
-}
+};
 
+/**
+ * Find a row in a table by a key.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param key - Key to search for
+ * @param isUnique - Whether the key is unique, or an options object.
+ * If true, return the row. If false, return the row count.
+ * If an options object, the following properties are supported:
+ * - columnNames: An array of column names to select. Defaults to '*'.
+ * - forUpdate: If true, append 'FOR UPDATE' to the query. Defaults to false.
+ * @returns If isUnique is true, an object or null. If isUnique is false, a number.
+ */
 const findByKey = async <
   T extends boolean | Options,
   R = T extends true | Options ? object | null : number,
@@ -16,7 +28,7 @@ const findByKey = async <
   query: Query,
   tableName: string,
   key: Record<string, string | number | boolean | null>,
-  isUnique: T | (T extends true | Options ? Options : never),
+  isUnique: T,
 ): Promise<R> => {
   const debug = new Debug(`${debugSource}.findByKey`);
   debug.write(
@@ -57,6 +69,13 @@ const findByKey = async <
   }
 };
 
+/**
+ * Check if a row with a given primary key already exists in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key to search for
+ * @throws ConflictError if the row already exists
+ */
 export const checkPrimaryKey = async (
   query: Query,
   tableName: string,
@@ -76,6 +95,13 @@ export const checkPrimaryKey = async (
   debug.write(MessageType.Exit);
 };
 
+/**
+ * Check if a row with a given unique key already exists in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param uniqueKey - Unique key to search for
+ * @throws ConflictError if the row already exists
+ */
 export const checkUniqueKey = async (
   query: Query,
   tableName: string,
@@ -104,6 +130,13 @@ export const checkUniqueKey = async (
   debug.write(MessageType.Exit);
 };
 
+/**
+ * Check if any rows with a given foreign key already exist in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param foreignKey - Foreign key to search for
+ * @throws ConflictError if any rows still exist
+ */
 export const checkForeignKey = async (
   query: Query,
   tableName: string,
@@ -132,6 +165,15 @@ export const checkForeignKey = async (
   debug.write(MessageType.Exit);
 };
 
+/**
+ * Find a row in a table by its primary key.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key of the row to search for
+ * @param options - Options to pass to findByKey (optional)
+ * @throws NotFoundError if the row is not found
+ * @returns Found row
+ */
 export const findByPrimaryKey = async (
   query: Query,
   tableName: string,
@@ -155,6 +197,15 @@ export const findByPrimaryKey = async (
   return row;
 };
 
+/**
+ * Find a row in a table by its unique key.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param uniqueKey - Unique key of the row to search for
+ * @param options - Options to pass to findByKey (optional)
+ * @throws NotFoundError if the row is not found
+ * @returns Found row
+ */
 export const findByUniqueKey = async (
   query: Query,
   tableName: string,
@@ -187,6 +238,14 @@ export const findByUniqueKey = async (
   return row;
 };
 
+/**
+ * Create a new row in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param data - Data to insert into the table
+ * @param returningColumnNames - Column names to return in the result (optional)
+ * @returns Created row
+ */
 export const createRow = async (
   query: Query,
   tableName: string,
@@ -224,6 +283,15 @@ export const createRow = async (
   return row;
 };
 
+/**
+ * Update an existing row in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key of the row to update
+ * @param data - Data to update in the table
+ * @param returningColumnNames - Column names to return in the result (optional)
+ * @returns Updated row
+ */
 export const updateRow = async (
   query: Query,
   tableName: string,
@@ -262,6 +330,12 @@ export const updateRow = async (
   return row;
 };
 
+/**
+ * Delete an existing row in a table.
+ * @param query - Database query interface
+ * @param tableName - Name of the table
+ * @param primaryKey - Primary key of the row to delete
+ */
 export const deleteRow = async (
   query: Query,
   tableName: string,
