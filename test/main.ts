@@ -15,7 +15,7 @@ import {
 } from '../dist';
 
 describe('main', (suiteContext) => {
-  Debug.initialise(true);
+  Debug.initialize(true);
   let debug: Debug;
   let database: Database;
   const tableName = `_test_${Math.random().toString().substring(2)}`;
@@ -45,8 +45,8 @@ describe('main', (suiteContext) => {
           "('Joe Blogs', null), " +
           "('Fred Nerks', 1) ",
       );
-      debug.write(MessageType.Exit);
     });
+    debug.write(MessageType.Exit);
   });
   it('checkPrimaryKey', async (testContext) => {
     debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
@@ -126,7 +126,7 @@ describe('main', (suiteContext) => {
     debug.write(MessageType.Entry);
     debug.write(MessageType.Step, `Dropping temp table "${tableName}"...`);
     await database.query(`DROP TABLE ${tableName}`);
-    debug.write(MessageType.Step, `Shutting down database...`);
+    debug.write(MessageType.Step, `Shutting down database connection...`);
     await database.shutdown();
     debug.write(MessageType.Exit);
   });
