@@ -126,8 +126,8 @@ describe('main', (suiteContext) => {
     debug.write(MessageType.Entry);
     debug.write(MessageType.Step, `Dropping temp table "${tableName}"...`);
     await database.query(`DROP TABLE ${tableName}`);
-    debug.write(MessageType.Step, `Shutting down database connection...`);
-    await database.shutdown();
+    debug.write(MessageType.Step, `Disconnecting from database...`);
+    await database.disconnect();
     debug.write(MessageType.Exit);
   });
 });
