@@ -27,7 +27,7 @@ const findByKey = async <
 >(
   query: Query,
   tableName: string,
-  key: Record<string, string | number | boolean | null>,
+  key: Record<string, any>,
   isUnique: T,
 ): Promise<R> => {
   const debug = new Debug(`${debugSource}.findByKey`);
@@ -79,7 +79,7 @@ const findByKey = async <
 export const checkPrimaryKey = async (
   query: Query,
   tableName: string,
-  primaryKey: Record<string, string | number>,
+  primaryKey: Record<string, any>,
 ) => {
   const debug = new Debug(`${debugSource}.checkPrimaryKey`);
   debug.write(
@@ -105,7 +105,7 @@ export const checkPrimaryKey = async (
 export const checkUniqueKey = async (
   query: Query,
   tableName: string,
-  uniqueKey: Record<string, string | number | boolean | null>,
+  uniqueKey: Record<string, any>,
 ) => {
   const debug = new Debug(`${debugSource}.checkUniqueKey`);
   debug.write(
@@ -140,7 +140,7 @@ export const checkUniqueKey = async (
 export const checkForeignKey = async (
   query: Query,
   tableName: string,
-  foreignKey: Record<string, string | number>,
+  foreignKey: Record<string, any>,
 ) => {
   const debug = new Debug(`${debugSource}.checkForeignKey`);
   debug.write(
@@ -177,7 +177,7 @@ export const checkForeignKey = async (
 export const findByPrimaryKey = async (
   query: Query,
   tableName: string,
-  primaryKey: Record<string, string | number>,
+  primaryKey: Record<string, any>,
   options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByPrimaryKey`);
@@ -209,7 +209,7 @@ export const findByPrimaryKey = async (
 export const findByUniqueKey = async (
   query: Query,
   tableName: string,
-  uniqueKey: Record<string, string | number | boolean | null>,
+  uniqueKey: Record<string, any>,
   options?: Options,
 ) => {
   const debug = new Debug(`${debugSource}.findByUniqueKey`);
@@ -295,7 +295,7 @@ export const createRow = async (
 export const updateRow = async (
   query: Query,
   tableName: string,
-  primaryKey: Record<string, string | number>,
+  primaryKey: Record<string, any>,
   data: Record<string, any>,
   returningColumnNames?: string[],
 ) => {
@@ -339,7 +339,7 @@ export const updateRow = async (
 export const deleteRow = async (
   query: Query,
   tableName: string,
-  primaryKey: Record<string, string | number>,
+  primaryKey: Record<string, any>,
 ) => {
   const debug = new Debug(`${debugSource}.deleteRow`);
   debug.write(
