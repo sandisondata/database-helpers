@@ -36,7 +36,7 @@ const findByKey = async <
     `tableName=${tableName};key=${JSON.stringify(key)};` +
       `isUnique=${JSON.stringify(isUnique)}`,
   );
-  const text =
+  const sql =
     `SELECT ${
       typeof isUnique !== 'boolean' &&
       typeof isUnique.columnNames !== 'undefined'
@@ -53,17 +53,17 @@ const findByKey = async <
     (typeof isUnique !== 'boolean' && (isUnique.forUpdate || false)
       ? ' FOR UPDATE'
       : '');
-  debug.write(MessageType.Value, `text=(${text})`);
+  debug.write(MessageType.Value, `sql=(${sql})`);
   const values = Object.values(key).map((x) => (x == null ? 1 : x));
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   if (typeof isUnique !== 'boolean' || isUnique) {
     debug.write(MessageType.Step, 'Finding row...');
-    const row: object | null = (await query(text, values)).rows[0] || null;
+    const row: object | null = (await query(sql, values)).rows[0] || null;
     debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
     return row as R;
   } else {
     debug.write(MessageType.Step, 'Finding row count...');
-    const rowCount = (await query(text, values)).rowCount || 0;
+    const rowCount = (await query(sql, values)).rowCount || 0;
     debug.write(MessageType.Exit, `rowCount=${rowCount}`);
     return rowCount as R;
   }
@@ -260,7 +260,7 @@ export const createRow = async (
         ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
         : ''),
   );
-  const text =
+  const sql =
     `INSERT INTO ${tableName} ` +
     (Object.keys(data).length ? `(${Object.keys(data).join(', ')}) ` : '') +
     'VALUES (' +
@@ -274,11 +274,11 @@ export const createRow = async (
         ? returningColumnNames.join(', ')
         : '*'
     }`;
-  debug.write(MessageType.Value, `text=(${text})`);
+  debug.write(MessageType.Value, `sql=(${sql})`);
   const values = Object.values(data);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Creating row...');
-  const row = (await query(text, values)).rows[0] as object;
+  const row = (await query(sql, values)).rows[0] as object;
   debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
   return row;
 };
@@ -308,7 +308,7 @@ export const updateRow = async (
         ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
         : ''),
   );
-  const text =
+  const sql =
     `UPDATE ${tableName} ` +
     `SET ${Object.keys(data)
       .map((x, i) => `${x} = $${i + 1}`)
@@ -321,11 +321,11 @@ export const updateRow = async (
         ? returningColumnNames.join(', ')
         : '*'
     }`;
-  debug.write(MessageType.Value, `text=(${text})`);
+  debug.write(MessageType.Value, `sql=(${sql})`);
   const values = [...Object.values(data), ...Object.values(primaryKey)];
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Updating row...');
-  const row = (await query(text, values)).rows[0] as object;
+  const row = (await query(sql, values)).rows[0] as object;
   debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
   return row;
 };
@@ -346,15 +346,15 @@ export const deleteRow = async (
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`,
   );
-  const text =
+  const sql =
     `DELETE FROM ${tableName} ` +
     `WHERE ${Object.keys(primaryKey)
       .map((x, i) => `${x} = $${i + 1}`)
       .join(' AND ')}`;
-  debug.write(MessageType.Value, `text=(${text})`);
+  debug.write(MessageType.Value, `sql=(${sql})`);
   const values = Object.values(primaryKey);
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
   debug.write(MessageType.Step, 'Deleting row...');
-  await query(text, values);
+  await query(sql, values);
   debug.write(MessageType.Exit);
 };

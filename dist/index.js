@@ -29,7 +29,7 @@ const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0,
     const debug = new node_debug_1.Debug(`${debugSource}.findByKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};key=${JSON.stringify(key)};` +
         `isUnique=${JSON.stringify(isUnique)}`);
-    const text = `SELECT ${typeof isUnique !== 'boolean' &&
+    const sql = `SELECT ${typeof isUnique !== 'boolean' &&
         typeof isUnique.columnNames !== 'undefined'
         ? isUnique.columnNames.join(', ')
         : '*'} ` +
@@ -40,18 +40,18 @@ const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0,
         (typeof isUnique !== 'boolean' && (isUnique.forUpdate || false)
             ? ' FOR UPDATE'
             : '');
-    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
+    debug.write(node_debug_1.MessageType.Value, `sql=(${sql})`);
     const values = Object.values(key).map((x) => (x == null ? 1 : x));
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     if (typeof isUnique !== 'boolean' || isUnique) {
         debug.write(node_debug_1.MessageType.Step, 'Finding row...');
-        const row = (yield query(text, values)).rows[0] || null;
+        const row = (yield query(sql, values)).rows[0] || null;
         debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
         return row;
     }
     else {
         debug.write(node_debug_1.MessageType.Step, 'Finding row count...');
-        const rowCount = (yield query(text, values)).rowCount || 0;
+        const rowCount = (yield query(sql, values)).rowCount || 0;
         debug.write(node_debug_1.MessageType.Exit, `rowCount=${rowCount}`);
         return rowCount;
     }
@@ -190,7 +190,7 @@ const createRow = (query, tableName, data, returningColumnNames) => __awaiter(vo
         (typeof returningColumnNames !== 'undefined'
             ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
             : ''));
-    const text = `INSERT INTO ${tableName} ` +
+    const sql = `INSERT INTO ${tableName} ` +
         (Object.keys(data).length ? `(${Object.keys(data).join(', ')}) ` : '') +
         'VALUES (' +
         (Object.keys(data).length
@@ -201,11 +201,11 @@ const createRow = (query, tableName, data, returningColumnNames) => __awaiter(vo
         `) RETURNING ${typeof returningColumnNames !== 'undefined'
             ? returningColumnNames.join(', ')
             : '*'}`;
-    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
+    debug.write(node_debug_1.MessageType.Value, `sql=(${sql})`);
     const values = Object.values(data);
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Creating row...');
-    const row = (yield query(text, values)).rows[0];
+    const row = (yield query(sql, values)).rows[0];
     debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
     return row;
 });
@@ -226,7 +226,7 @@ const updateRow = (query, tableName, primaryKey, data, returningColumnNames) => 
         (typeof returningColumnNames !== 'undefined'
             ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
             : ''));
-    const text = `UPDATE ${tableName} ` +
+    const sql = `UPDATE ${tableName} ` +
         `SET ${Object.keys(data)
             .map((x, i) => `${x} = $${i + 1}`)
             .join(', ')} ` +
@@ -236,11 +236,11 @@ const updateRow = (query, tableName, primaryKey, data, returningColumnNames) => 
         `RETURNING ${typeof returningColumnNames !== 'undefined'
             ? returningColumnNames.join(', ')
             : '*'}`;
-    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
+    debug.write(node_debug_1.MessageType.Value, `sql=(${sql})`);
     const values = [...Object.values(data), ...Object.values(primaryKey)];
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Updating row...');
-    const row = (yield query(text, values)).rows[0];
+    const row = (yield query(sql, values)).rows[0];
     debug.write(node_debug_1.MessageType.Exit, `row=${JSON.stringify(row)}`);
     return row;
 });
@@ -254,15 +254,15 @@ exports.updateRow = updateRow;
 const deleteRow = (query, tableName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.deleteRow`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`);
-    const text = `DELETE FROM ${tableName} ` +
+    const sql = `DELETE FROM ${tableName} ` +
         `WHERE ${Object.keys(primaryKey)
             .map((x, i) => `${x} = $${i + 1}`)
             .join(' AND ')}`;
-    debug.write(node_debug_1.MessageType.Value, `text=(${text})`);
+    debug.write(node_debug_1.MessageType.Value, `sql=(${sql})`);
     const values = Object.values(primaryKey);
     debug.write(node_debug_1.MessageType.Value, `values=${JSON.stringify(values)}`);
     debug.write(node_debug_1.MessageType.Step, 'Deleting row...');
-    yield query(text, values);
+    yield query(sql, values);
     debug.write(node_debug_1.MessageType.Exit);
 });
 exports.deleteRow = deleteRow;
