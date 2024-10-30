@@ -38,8 +38,7 @@ const findByKey = async <
   );
   const sql =
     `SELECT ${
-      typeof isUnique !== 'boolean' &&
-      typeof isUnique.columnNames !== 'undefined'
+      typeof isUnique != 'boolean' && typeof isUnique.columnNames != 'undefined'
         ? isUnique.columnNames.join(', ')
         : '*'
     } ` +
@@ -50,13 +49,13 @@ const findByKey = async <
           `${x} ` + (key[x] == null ? 'IS NULL AND 1 ' : '') + `= $${i + 1}`,
       )
       .join(' AND ')}` +
-    (typeof isUnique !== 'boolean' && (isUnique.forUpdate || false)
+    (typeof isUnique != 'boolean' && (isUnique.forUpdate || false)
       ? ' FOR UPDATE'
       : '');
   debug.write(MessageType.Value, `sql=(${sql})`);
   const values = Object.values(key).map((x) => (x == null ? 1 : x));
   debug.write(MessageType.Value, `values=${JSON.stringify(values)}`);
-  if (typeof isUnique !== 'boolean' || isUnique) {
+  if (typeof isUnique != 'boolean' || isUnique) {
     debug.write(MessageType.Step, 'Finding row...');
     const row: object | null = (await query(sql, values)).rows[0] || null;
     debug.write(MessageType.Exit, `row=${JSON.stringify(row)}`);
@@ -184,7 +183,7 @@ export const findByPrimaryKey = async (
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}` +
-      (typeof options !== 'undefined'
+      (typeof options != 'undefined'
         ? `;options=${JSON.stringify(options)}`
         : ''),
   );
@@ -216,7 +215,7 @@ export const findByUniqueKey = async (
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)}` +
-      (typeof options !== 'undefined'
+      (typeof options != 'undefined'
         ? `;options=${JSON.stringify(options)}`
         : ''),
   );
@@ -256,7 +255,7 @@ export const createRow = async (
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};data=${JSON.stringify(data)}` +
-      (typeof returningColumnNames !== 'undefined'
+      (typeof returningColumnNames != 'undefined'
         ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
         : ''),
   );
@@ -270,7 +269,7 @@ export const createRow = async (
           .join(', ')}`
       : 'default') +
     `) RETURNING ${
-      typeof returningColumnNames !== 'undefined'
+      typeof returningColumnNames != 'undefined'
         ? returningColumnNames.join(', ')
         : '*'
     }`;
@@ -304,7 +303,7 @@ export const updateRow = async (
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)};` +
       `data=${JSON.stringify(data)}` +
-      (typeof returningColumnNames !== 'undefined'
+      (typeof returningColumnNames != 'undefined'
         ? `;returningColumnNames=${JSON.stringify(returningColumnNames)}`
         : ''),
   );
@@ -317,7 +316,7 @@ export const updateRow = async (
       .map((x, i) => `${x} = $${Object.keys(data).length + i + 1}`)
       .join(' AND ')} ` +
     `RETURNING ${
-      typeof returningColumnNames !== 'undefined'
+      typeof returningColumnNames != 'undefined'
         ? returningColumnNames.join(', ')
         : '*'
     }`;
