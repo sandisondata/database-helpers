@@ -65,7 +65,7 @@ const findByKey = (query, tableName, key, isUnique) => __awaiter(void 0, void 0,
 const checkPrimaryKey = (query, tableName, primaryKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.checkPrimaryKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`);
-    debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
+    debug.write(node_debug_1.MessageType.Step, 'Finding row by primary key...');
     const row = yield findByKey(query, tableName, primaryKey, true);
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     if (row) {
@@ -84,7 +84,7 @@ exports.checkPrimaryKey = checkPrimaryKey;
 const checkUniqueKey = (query, tableName, uniqueKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.checkUniqueKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)};`);
-    debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
+    debug.write(node_debug_1.MessageType.Step, 'Finding row by unique key...');
     const row = yield findByKey(query, tableName, uniqueKey, true);
     debug.write(node_debug_1.MessageType.Value, `row=${JSON.stringify(row)}`);
     if (row) {
@@ -108,7 +108,7 @@ exports.checkUniqueKey = checkUniqueKey;
 const checkForeignKey = (query, tableName, foreignKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${debugSource}.checkForeignKey`);
     debug.write(node_debug_1.MessageType.Entry, `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`);
-    debug.write(node_debug_1.MessageType.Step, 'Finding row count by key...');
+    debug.write(node_debug_1.MessageType.Step, 'Finding row count by foreign key...');
     const rowCount = yield findByKey(query, tableName, foreignKey, false);
     debug.write(node_debug_1.MessageType.Value, `rowCount=${rowCount}`);
     if (rowCount) {
@@ -137,7 +137,7 @@ const findByPrimaryKey = (query, tableName, primaryKey, options) => __awaiter(vo
         (typeof options != 'undefined'
             ? `;options=${JSON.stringify(options)}`
             : ''));
-    debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
+    debug.write(node_debug_1.MessageType.Step, 'Finding row by primary key...');
     const row = yield findByKey(query, tableName, primaryKey, options || true);
     if (!row) {
         throw new node_errors_1.NotFoundError(`Table (${tableName}) row not found`);
@@ -161,7 +161,7 @@ const findByUniqueKey = (query, tableName, uniqueKey, options) => __awaiter(void
         (typeof options != 'undefined'
             ? `;options=${JSON.stringify(options)}`
             : ''));
-    debug.write(node_debug_1.MessageType.Step, 'Finding row by key...');
+    debug.write(node_debug_1.MessageType.Step, 'Finding row by unique key...');
     const row = yield findByKey(query, tableName, uniqueKey, options || true);
     if (!row) {
         throw new node_errors_1.NotFoundError(`Table (${tableName}) row with ` +

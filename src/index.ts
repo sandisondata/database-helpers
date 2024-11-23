@@ -85,7 +85,7 @@ export const checkPrimaryKey = async (
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`,
   );
-  debug.write(MessageType.Step, 'Finding row by key...');
+  debug.write(MessageType.Step, 'Finding row by primary key...');
   const row = await findByKey(query, tableName, primaryKey, true);
   debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
   if (row) {
@@ -111,7 +111,7 @@ export const checkUniqueKey = async (
     MessageType.Entry,
     `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)};`,
   );
-  debug.write(MessageType.Step, 'Finding row by key...');
+  debug.write(MessageType.Step, 'Finding row by unique key...');
   const row = await findByKey(query, tableName, uniqueKey, true);
   debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
   if (row) {
@@ -146,7 +146,7 @@ export const checkForeignKey = async (
     MessageType.Entry,
     `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`,
   );
-  debug.write(MessageType.Step, 'Finding row count by key...');
+  debug.write(MessageType.Step, 'Finding row count by foreign key...');
   const rowCount = await findByKey(query, tableName, foreignKey, false);
   debug.write(MessageType.Value, `rowCount=${rowCount}`);
   if (rowCount) {
@@ -187,7 +187,7 @@ export const findByPrimaryKey = async (
         ? `;options=${JSON.stringify(options)}`
         : ''),
   );
-  debug.write(MessageType.Step, 'Finding row by key...');
+  debug.write(MessageType.Step, 'Finding row by primary key...');
   const row = await findByKey(query, tableName, primaryKey, options || true);
   if (!row) {
     throw new NotFoundError(`Table (${tableName}) row not found`);
@@ -219,7 +219,7 @@ export const findByUniqueKey = async (
         ? `;options=${JSON.stringify(options)}`
         : ''),
   );
-  debug.write(MessageType.Step, 'Finding row by key...');
+  debug.write(MessageType.Step, 'Finding row by unique key...');
   const row = await findByKey(query, tableName, uniqueKey, options || true);
   if (!row) {
     throw new NotFoundError(
