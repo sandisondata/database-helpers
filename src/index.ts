@@ -2,7 +2,7 @@ import { Query } from 'database';
 import { Debug, MessageType } from 'node-debug';
 import { NotFoundError, ConflictError } from 'node-errors';
 
-const debugSource = 'database-helpers';
+const moduleName = 'database-helpers';
 
 type Options = {
   columnNames?: string[];
@@ -30,7 +30,7 @@ const findByKey = async <
   key: Record<string, any>,
   isUnique: T,
 ): Promise<R> => {
-  const debug = new Debug(`${debugSource}.findByKey`);
+  const debug = new Debug(`${moduleName}.findByKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};key=${JSON.stringify(key)};` +
@@ -80,7 +80,7 @@ export const checkPrimaryKey = async (
   tableName: string,
   primaryKey: Record<string, any>,
 ) => {
-  const debug = new Debug(`${debugSource}.checkPrimaryKey`);
+  const debug = new Debug(`${moduleName}.checkPrimaryKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`,
@@ -106,7 +106,7 @@ export const checkUniqueKey = async (
   tableName: string,
   uniqueKey: Record<string, any>,
 ) => {
-  const debug = new Debug(`${debugSource}.checkUniqueKey`);
+  const debug = new Debug(`${moduleName}.checkUniqueKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)};`,
@@ -141,7 +141,7 @@ export const checkForeignKey = async (
   tableName: string,
   foreignKey: Record<string, any>,
 ) => {
-  const debug = new Debug(`${debugSource}.checkForeignKey`);
+  const debug = new Debug(`${moduleName}.checkForeignKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`,
@@ -179,7 +179,7 @@ export const findByPrimaryKey = async (
   primaryKey: Record<string, any>,
   options?: Options,
 ) => {
-  const debug = new Debug(`${debugSource}.findByPrimaryKey`);
+  const debug = new Debug(`${moduleName}.findByPrimaryKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}` +
@@ -211,7 +211,7 @@ export const findByUniqueKey = async (
   uniqueKey: Record<string, any>,
   options?: Options,
 ) => {
-  const debug = new Debug(`${debugSource}.findByUniqueKey`);
+  const debug = new Debug(`${moduleName}.findByUniqueKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)}` +
@@ -251,7 +251,7 @@ export const createRow = async (
   data: Record<string, any>,
   returningColumnNames?: string[],
 ) => {
-  const debug = new Debug(`${debugSource}.createRow`);
+  const debug = new Debug(`${moduleName}.createRow`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};data=${JSON.stringify(data)}` +
@@ -298,7 +298,7 @@ export const updateRow = async (
   data: Record<string, any>,
   returningColumnNames?: string[],
 ) => {
-  const debug = new Debug(`${debugSource}.updateRow`);
+  const debug = new Debug(`${moduleName}.updateRow`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)};` +
@@ -340,7 +340,7 @@ export const deleteRow = async (
   tableName: string,
   primaryKey: Record<string, any>,
 ) => {
-  const debug = new Debug(`${debugSource}.deleteRow`);
+  const debug = new Debug(`${moduleName}.deleteRow`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`,
