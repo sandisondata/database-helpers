@@ -5,6 +5,7 @@ type Options = {
 };
 /**
  * Check if a row with a given primary key already exists in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key to search for
@@ -13,6 +14,7 @@ type Options = {
 export declare const checkPrimaryKey: (query: Query, tableName: string, primaryKey: Record<string, any>) => Promise<void>;
 /**
  * Check if a row with a given unique key already exists in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param uniqueKey - Unique key to search for
@@ -20,7 +22,8 @@ export declare const checkPrimaryKey: (query: Query, tableName: string, primaryK
  */
 export declare const checkUniqueKey: (query: Query, tableName: string, uniqueKey: Record<string, any>) => Promise<void>;
 /**
- * Check if any rows with a given foreign key already exist in a table.
+ * Check if any rows with a given foreign key still exist in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param foreignKey - Foreign key to search for
@@ -29,26 +32,29 @@ export declare const checkUniqueKey: (query: Query, tableName: string, uniqueKey
 export declare const checkForeignKey: (query: Query, tableName: string, foreignKey: Record<string, any>) => Promise<void>;
 /**
  * Find a row in a table by its primary key.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key of the row to search for
- * @param options - Options to pass to findByKey (optional)
+ * @param options - Options to pass to findRowByKey (optional)
  * @throws NotFoundError if the row is not found
  * @returns Found row
  */
-export declare const findByPrimaryKey: (query: Query, tableName: string, primaryKey: Record<string, any>, options?: Options) => Promise<object>;
+export declare const findRowByPrimaryKey: (query: Query, tableName: string, primaryKey: Record<string, any>, options?: Options) => Promise<object>;
 /**
  * Find a row in a table by its unique key.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param uniqueKey - Unique key of the row to search for
- * @param options - Options to pass to findByKey (optional)
+ * @param options - Options to pass to findRowByKey (optional)
  * @throws NotFoundError if the row is not found
  * @returns Found row
  */
-export declare const findByUniqueKey: (query: Query, tableName: string, uniqueKey: Record<string, any>, options?: Options) => Promise<object>;
+export declare const findRowByUniqueKey: (query: Query, tableName: string, uniqueKey: Record<string, any>, options?: Options) => Promise<object>;
 /**
  * Create a new row in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param data - Data to insert into the table
@@ -58,6 +64,7 @@ export declare const findByUniqueKey: (query: Query, tableName: string, uniqueKe
 export declare const createRow: (query: Query, tableName: string, data: Record<string, any>, returningColumnNames?: string[]) => Promise<object>;
 /**
  * Update an existing row in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key of the row to update
@@ -68,6 +75,7 @@ export declare const createRow: (query: Query, tableName: string, data: Record<s
 export declare const updateRow: (query: Query, tableName: string, primaryKey: Record<string, any>, data: Record<string, any>, returningColumnNames?: string[]) => Promise<object>;
 /**
  * Delete an existing row in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key of the row to delete

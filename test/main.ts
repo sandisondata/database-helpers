@@ -9,8 +9,8 @@ import {
   checkUniqueKey,
   createRow,
   deleteRow,
-  findByPrimaryKey,
-  findByUniqueKey,
+  findRowByPrimaryKey,
+  findRowByUniqueKey,
   updateRow,
 } from '../dist';
 
@@ -72,18 +72,18 @@ describe('main', (suiteContext) => {
     debug.write(MessageType.Exit);
     assert.ok(true);
   });
-  it('findByPrimaryKey', async (testContext) => {
+  it('findRowByPrimaryKey', async (testContext) => {
     debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
     debug.write(MessageType.Entry);
-    //await findByPrimaryKey(database.query, tableName, { id: 0 });
-    await findByPrimaryKey(database.query, tableName, { id: 1 });
+    //await findRowByPrimaryKey(database.query, tableName, { id: 0 });
+    await findRowByPrimaryKey(database.query, tableName, { id: 1 });
     debug.write(MessageType.Exit);
     assert.ok(true);
   });
-  it('findByUniqueKey', async (testContext) => {
+  it('findRowByUniqueKey', async (testContext) => {
     debug = new Debug(`${suiteContext.name}.test.${testContext.name}`);
     debug.write(MessageType.Entry);
-    await findByUniqueKey(
+    await findRowByUniqueKey(
       database.query,
       tableName,
       //{ name: 'John Smith' },

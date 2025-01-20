@@ -1,7 +1,7 @@
 {
   "name": "database-helpers",
   "version": "1.0.0",
-  "description": "Database helpers",
+  "description": "A collection of database helpers",
   "author": "Grant Fortington",
   "private": true,
   "license": "MIT",

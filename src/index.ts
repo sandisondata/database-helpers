@@ -11,6 +11,7 @@ type Options = {
 
 /**
  * Find a row in a table by a key.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param key - Key to search for
@@ -21,7 +22,7 @@ type Options = {
  * - forUpdate: If true, append 'FOR UPDATE' to the query. Defaults to false.
  * @returns If isUnique is true, an object or null. If isUnique is false, a number.
  */
-const findByKey = async <
+const findRowByKey = async <
   T extends boolean | Options,
   R = T extends true | Options ? object | null : number,
 >(
@@ -30,7 +31,7 @@ const findByKey = async <
   key: Record<string, any>,
   isUnique: T,
 ): Promise<R> => {
-  const debug = new Debug(`${moduleName}.findByKey`);
+  const debug = new Debug(`${moduleName}.findRowByKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};key=${JSON.stringify(key)};` +
@@ -70,6 +71,7 @@ const findByKey = async <
 
 /**
  * Check if a row with a given primary key already exists in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key to search for
@@ -86,7 +88,7 @@ export const checkPrimaryKey = async (
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}`,
   );
   debug.write(MessageType.Step, 'Finding row by primary key...');
-  const row = await findByKey(query, tableName, primaryKey, true);
+  const row = await findRowByKey(query, tableName, primaryKey, true);
   debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
   if (row) {
     throw new ConflictError(`Table (${tableName}) row already exists`);
@@ -96,6 +98,7 @@ export const checkPrimaryKey = async (
 
 /**
  * Check if a row with a given unique key already exists in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param uniqueKey - Unique key to search for
@@ -112,7 +115,7 @@ export const checkUniqueKey = async (
     `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)};`,
   );
   debug.write(MessageType.Step, 'Finding row by unique key...');
-  const row = await findByKey(query, tableName, uniqueKey, true);
+  const row = await findRowByKey(query, tableName, uniqueKey, true);
   debug.write(MessageType.Value, `row=${JSON.stringify(row)}`);
   if (row) {
     throw new ConflictError(
@@ -130,7 +133,8 @@ export const checkUniqueKey = async (
 };
 
 /**
- * Check if any rows with a given foreign key already exist in a table.
+ * Check if any rows with a given foreign key still exist in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param foreignKey - Foreign key to search for
@@ -147,7 +151,7 @@ export const checkForeignKey = async (
     `tableName=${tableName};foreignKey=${JSON.stringify(foreignKey)};`,
   );
   debug.write(MessageType.Step, 'Finding row count by foreign key...');
-  const rowCount = await findByKey(query, tableName, foreignKey, false);
+  const rowCount = await findRowByKey(query, tableName, foreignKey, false);
   debug.write(MessageType.Value, `rowCount=${rowCount}`);
   if (rowCount) {
     throw new ConflictError(
@@ -166,20 +170,21 @@ export const checkForeignKey = async (
 
 /**
  * Find a row in a table by its primary key.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key of the row to search for
- * @param options - Options to pass to findByKey (optional)
+ * @param options - Options to pass to findRowByKey (optional)
  * @throws NotFoundError if the row is not found
  * @returns Found row
  */
-export const findByPrimaryKey = async (
+export const findRowByPrimaryKey = async (
   query: Query,
   tableName: string,
   primaryKey: Record<string, any>,
   options?: Options,
 ) => {
-  const debug = new Debug(`${moduleName}.findByPrimaryKey`);
+  const debug = new Debug(`${moduleName}.findRowByPrimaryKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};primaryKey=${JSON.stringify(primaryKey)}` +
@@ -188,7 +193,7 @@ export const findByPrimaryKey = async (
         : ''),
   );
   debug.write(MessageType.Step, 'Finding row by primary key...');
-  const row = await findByKey(query, tableName, primaryKey, options || true);
+  const row = await findRowByKey(query, tableName, primaryKey, options || true);
   if (!row) {
     throw new NotFoundError(`Table (${tableName}) row not found`);
   }
@@ -198,20 +203,21 @@ export const findByPrimaryKey = async (
 
 /**
  * Find a row in a table by its unique key.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param uniqueKey - Unique key of the row to search for
- * @param options - Options to pass to findByKey (optional)
+ * @param options - Options to pass to findRowByKey (optional)
  * @throws NotFoundError if the row is not found
  * @returns Found row
  */
-export const findByUniqueKey = async (
+export const findRowByUniqueKey = async (
   query: Query,
   tableName: string,
   uniqueKey: Record<string, any>,
   options?: Options,
 ) => {
-  const debug = new Debug(`${moduleName}.findByUniqueKey`);
+  const debug = new Debug(`${moduleName}.findRowByUniqueKey`);
   debug.write(
     MessageType.Entry,
     `tableName=${tableName};uniqueKey=${JSON.stringify(uniqueKey)}` +
@@ -220,7 +226,7 @@ export const findByUniqueKey = async (
         : ''),
   );
   debug.write(MessageType.Step, 'Finding row by unique key...');
-  const row = await findByKey(query, tableName, uniqueKey, options || true);
+  const row = await findRowByKey(query, tableName, uniqueKey, options || true);
   if (!row) {
     throw new NotFoundError(
       `Table (${tableName}) row with ` +
@@ -239,6 +245,7 @@ export const findByUniqueKey = async (
 
 /**
  * Create a new row in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param data - Data to insert into the table
@@ -284,6 +291,7 @@ export const createRow = async (
 
 /**
  * Update an existing row in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key of the row to update
@@ -331,6 +339,7 @@ export const updateRow = async (
 
 /**
  * Delete an existing row in a table.
+ *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param primaryKey - Primary key of the row to delete
