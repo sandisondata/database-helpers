@@ -133,12 +133,12 @@ export const checkUniqueKey = async (
 };
 
 /**
- * Check if any rows with a given foreign key still exist in a table.
+ * Check if any rows with a given foreign key exist in a table.
  *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param foreignKey - Foreign key to search for
- * @throws ConflictError if any rows still exist
+ * @throws ConflictError if any rows exist
  */
 export const checkForeignKey = async (
   query: Query,
@@ -162,7 +162,7 @@ export const checkForeignKey = async (
             typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x,
           )
           .join(', ')}) ` +
-        `still exist${rowCount == 1 ? 's' : ''}`,
+        `exist${rowCount == 1 ? 's' : ''}`,
     );
   }
   debug.write(MessageType.Exit);

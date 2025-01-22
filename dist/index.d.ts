@@ -22,12 +22,12 @@ export declare const checkPrimaryKey: (query: Query, tableName: string, primaryK
  */
 export declare const checkUniqueKey: (query: Query, tableName: string, uniqueKey: Record<string, any>) => Promise<void>;
 /**
- * Check if any rows with a given foreign key still exist in a table.
+ * Check if any rows with a given foreign key exist in a table.
  *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param foreignKey - Foreign key to search for
- * @throws ConflictError if any rows still exist
+ * @throws ConflictError if any rows exist
  */
 export declare const checkForeignKey: (query: Query, tableName: string, foreignKey: Record<string, any>) => Promise<void>;
 /**

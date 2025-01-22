@@ -102,12 +102,12 @@ const checkUniqueKey = (query, tableName, uniqueKey) => __awaiter(void 0, void 0
 });
 exports.checkUniqueKey = checkUniqueKey;
 /**
- * Check if any rows with a given foreign key still exist in a table.
+ * Check if any rows with a given foreign key exist in a table.
  *
  * @param query - Database query interface
  * @param tableName - Name of the table
  * @param foreignKey - Foreign key to search for
- * @throws ConflictError if any rows still exist
+ * @throws ConflictError if any rows exist
  */
 const checkForeignKey = (query, tableName, foreignKey) => __awaiter(void 0, void 0, void 0, function* () {
     const debug = new node_debug_1.Debug(`${moduleName}.checkForeignKey`);
@@ -121,7 +121,7 @@ const checkForeignKey = (query, tableName, foreignKey) => __awaiter(void 0, void
             `value (${Object.values(foreignKey)
                 .map((x) => typeof x == 'string' ? `"${x}"` : x == null ? 'null' : x)
                 .join(', ')}) ` +
-            `still exist${rowCount == 1 ? 's' : ''}`);
+            `exist${rowCount == 1 ? 's' : ''}`);
     }
     debug.write(node_debug_1.MessageType.Exit);
 });
